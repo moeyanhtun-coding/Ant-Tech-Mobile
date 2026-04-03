@@ -3,6 +3,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 class LocalStorage {
   static const String keyToken = 'access_token';
   static const String keyRefreshToken = 'refresh_token';
+  static const String keyThemeMode = 'theme_mode';
+
+  static Future<void> saveThemeMode(String mode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(keyThemeMode, mode);
+  }
+
+  static Future<String?> getThemeMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(keyThemeMode);
+  }
 
   static Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
