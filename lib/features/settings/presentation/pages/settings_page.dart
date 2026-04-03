@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../auth/presentation/pages/login_page.dart';
+import '../../../../core/utils/local_storage.dart';
 import '../bloc/theme_bloc.dart';
 import '../bloc/theme_event.dart';
 import '../bloc/theme_state.dart';
@@ -70,8 +72,66 @@ class SettingsPage extends StatelessWidget {
               Icons.info_outline_rounded,
               colorScheme,
             ),
+            const SizedBox(height: 48),
+            _buildSectionHeader('Login Actions', colorScheme),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => _showLogoutDialog(context),
+                icon: const Icon(Icons.logout_rounded),
+                label: const Text('LOGOUT'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red.withValues(alpha: 0.1),
+                  foregroundColor: Colors.red,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  elevation: 0,
+                  side: BorderSide(color: Colors.red.withValues(alpha: 0.3)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 32),
           ],
         ),
+      ),
+    );
+  }
+
+  void _onLogout(BuildContext context) async {
+    await LocalStorage.clear();
+    if (context.mounted) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginPage()),
+        (route) => false,
+      );
+    }
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _onLogout(context);
+            },
+            child: const Text(
+              'Logout',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
       ),
     );
   }
