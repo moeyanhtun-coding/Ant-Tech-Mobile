@@ -50,7 +50,7 @@ class MyApp extends StatelessWidget {
                 surface: const Color(0xFFF5F7FB),
               ),
               textTheme: GoogleFonts.poppinsTextTheme(
-                Theme.of(context).textTheme,
+                ThemeData.light().textTheme,
               ),
             ),
             darkTheme: ThemeData(
