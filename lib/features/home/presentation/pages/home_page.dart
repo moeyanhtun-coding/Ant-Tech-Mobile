@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../auth/presentation/pages/login_page.dart';
+import '../../../attendance/presentation/pages/attendance_page.dart';
 import '../../../../core/utils/local_storage.dart';
 import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';
@@ -99,7 +100,21 @@ class _HomePageState extends State<HomePage> {
                     crossAxisSpacing: 15,
                     mainAxisSpacing: 15,
                     children: [
-                      _buildActionCard(Icons.calendar_today_rounded, 'Attendance', Colors.blue),
+                      _buildActionCard(
+                        Icons.calendar_today_rounded,
+                        'Attendance',
+                        Colors.blue,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => AttendancePage(
+                                employeeGUID: profile.employeeGUID,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                       _buildActionCard(Icons.beach_access_rounded, 'Leave', Colors.orange),
                       _buildActionCard(Icons.payments_rounded, 'Payroll', Colors.green),
                       _buildActionCard(Icons.description_rounded, 'Documents', Colors.purple),
@@ -184,7 +199,7 @@ class _HomePageState extends State<HomePage> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -200,39 +215,42 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildActionCard(IconData icon, String title, Color color) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              shape: BoxShape.circle,
+  Widget _buildActionCard(IconData icon, String title, Color color, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
-            child: Icon(icon, color: color, size: 30),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 30),
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
