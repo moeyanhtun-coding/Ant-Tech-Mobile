@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import '../utils/constants.dart';
 
@@ -15,7 +16,7 @@ class DioClient {
     dio.interceptors.add(LogInterceptor(
       requestBody: true,
       responseBody: true,
-      logPrint: (obj) => print(obj),
+      logPrint: (obj) => debugPrint(obj.toString()),
     ));
   }
 }
