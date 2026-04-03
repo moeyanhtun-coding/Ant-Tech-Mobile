@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../auth/presentation/pages/login_page.dart';
 import '../../../attendance/presentation/pages/attendance_page.dart';
 import '../../../settings/presentation/pages/settings_page.dart';
-import '../../../../core/utils/local_storage.dart';
 import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';
 import '../bloc/home_state.dart';
@@ -23,15 +21,6 @@ class _HomePageState extends State<HomePage> {
     context.read<HomeBloc>().add(GetProfileRequested());
   }
 
-  void _onLogout() async {
-    await LocalStorage.clear();
-    if (mounted) {
-      Navigator.of(
-        context,
-      ).pushReplacement(MaterialPageRoute(builder: (_) => const LoginPage()));
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -48,30 +37,11 @@ class _HomePageState extends State<HomePage> {
         foregroundColor: colorScheme.onSurface,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout_rounded),
+            icon: const Icon(Icons.settings_outlined),
             onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Logout'),
-                  content: const Text('Are you sure you want to logout?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        _onLogout();
-                      },
-                      child: const Text(
-                        'Logout',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                  ],
-                ),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SettingsPage()),
               );
             },
           ),
@@ -205,19 +175,6 @@ class _HomePageState extends State<HomePage> {
                 child: (profile.avatarUrl == null || profile.avatarUrl!.isEmpty)
                     ? const Icon(Icons.person, size: 35, color: Colors.white)
                     : null,
-              ),
-              IconButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const SettingsPage()),
-                  );
-                },
-                icon: const Icon(
-                  Icons.settings_outlined,
-                  color: Colors.white,
-                  size: 28,
-                ),
               ),
             ],
           ),
