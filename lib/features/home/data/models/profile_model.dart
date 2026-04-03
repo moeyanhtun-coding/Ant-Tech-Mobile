@@ -7,6 +7,7 @@ class ProfileModel extends ProfileEntity {
     required super.roleName,
     required super.departmentName,
     super.employeeCode,
+    required super.employeeGUID,
   });
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
@@ -16,6 +17,7 @@ class ProfileModel extends ProfileEntity {
       roleName: json['roleName'] ?? '',
       departmentName: json['departmentName'] ?? '',
       employeeCode: json['employeeCode'],
+      employeeGUID: json['employeeGUID'] ?? '',
     );
   }
 
@@ -26,6 +28,7 @@ class ProfileModel extends ProfileEntity {
       'roleName': roleName,
       'departmentName': departmentName,
       'employeeCode': employeeCode,
+      'employeeGUID': employeeGUID,
     };
   }
 }
