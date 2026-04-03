@@ -17,6 +17,7 @@ import 'features/attendance/data/repositories/attendance_repository_impl.dart';
 import 'features/attendance/domain/repositories/attendance_repository.dart';
 import 'features/attendance/domain/usecases/get_attendance_usecase.dart';
 import 'features/attendance/presentation/bloc/attendance_bloc.dart';
+import 'features/settings/presentation/bloc/theme_bloc.dart';
 
 final sl = GetIt.instance; // sl is short for Service Locator
 
@@ -61,6 +62,7 @@ Future<void> init() async {
   // Features - Attendance
   // Bloc
   sl.registerFactory(() => AttendanceBloc(getAttendanceUseCase: sl()));
+  sl.registerLazySingleton(() => ThemeBloc());
 
   // Use cases
   sl.registerLazySingleton(() => GetAttendanceUseCase(sl()));
