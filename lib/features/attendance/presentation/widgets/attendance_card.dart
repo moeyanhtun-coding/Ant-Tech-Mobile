@@ -10,18 +10,25 @@ class AttendanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.3) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
+          if (!isDark)
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
         ],
+        border: isDark 
+          ? Border.all(color: Colors.white.withValues(alpha: 0.05)) 
+          : null,
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -38,7 +45,7 @@ class AttendanceCard extends StatelessWidget {
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
-                        color: Colors.black87,
+                        color: colorScheme.onSurface,
                       ),
                     ),
                     if (record.shiftName != null)
@@ -46,7 +53,7 @@ class AttendanceCard extends StatelessWidget {
                         record.shiftName!,
                         style: GoogleFonts.poppins(
                           fontSize: 12,
-                          color: Colors.grey[600],
+                          color: colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                       ),
                   ],
@@ -58,9 +65,9 @@ class AttendanceCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildTimeInfo('Check In', record.checkInTime ?? '--:--', Icons.login_rounded, Colors.green),
-                _buildTimeInfo('Check Out', record.checkOutTime ?? '--:--', Icons.logout_rounded, Colors.orange),
-                _buildTimeInfo('Total', record.totalHours ?? '00:00', Icons.timer_outlined, Colors.blue),
+                _buildTimeInfo('Check In', record.checkInTime ?? '--:--', Icons.login_rounded, Colors.green, colorScheme),
+                _buildTimeInfo('Check Out', record.checkOutTime ?? '--:--', Icons.logout_rounded, Colors.orange, colorScheme),
+                _buildTimeInfo('Total', record.totalHours ?? '00:00', Icons.timer_outlined, Colors.blue, colorScheme),
               ],
             ),
           ],
@@ -123,7 +130,7 @@ class AttendanceCard extends StatelessWidget {
     );
   }
 
-  Widget _buildTimeInfo(String label, String time, IconData icon, Color color) {
+  Widget _buildTimeInfo(String label, String time, IconData icon, Color color, ColorScheme colorScheme) {
     return Column(
       children: [
         Icon(icon, size: 18, color: color.withValues(alpha: 0.7)),
@@ -132,7 +139,7 @@ class AttendanceCard extends StatelessWidget {
           label,
           style: GoogleFonts.poppins(
             fontSize: 10,
-            color: Colors.grey[500],
+            color: colorScheme.onSurface.withValues(alpha: 0.5),
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -141,7 +148,7 @@ class AttendanceCard extends StatelessWidget {
           style: GoogleFonts.poppins(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: colorScheme.onSurface,
           ),
         ),
       ],
