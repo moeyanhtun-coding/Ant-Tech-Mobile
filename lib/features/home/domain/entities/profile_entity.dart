@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class ProfileEntity extends Equatable {
+  final String employeeGUID;
   final String username;
   final String fullName;
   final String roleName;
@@ -13,8 +14,15 @@ class ProfileEntity extends Equatable {
     required this.roleName,
     required this.departmentName,
     this.employeeCode,
+    required this.employeeGUID,
   });
 
   @override
-  List<Object?> get props => [username, fullName, roleName, departmentName, employeeCode];
+  List<Object?> get props => [
+    username,
+    fullName,
+    roleName,
+    departmentName,
+    employeeCode,
+  ];
 }
