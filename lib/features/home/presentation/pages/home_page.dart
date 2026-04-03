@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../auth/presentation/pages/login_page.dart';
 import '../../../attendance/presentation/pages/attendance_page.dart';
+import '../../../settings/presentation/pages/settings_page.dart';
 import '../../../../core/utils/local_storage.dart';
 import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';
@@ -25,24 +26,26 @@ class _HomePageState extends State<HomePage> {
   void _onLogout() async {
     await LocalStorage.clear();
     if (mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const LoginPage()),
-      );
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => const LoginPage()));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FB),
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: Text(
           'Dashboard',
           style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
         ),
         elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout_rounded),
@@ -62,7 +65,10 @@ class _HomePageState extends State<HomePage> {
                         Navigator.pop(context);
                         _onLogout();
                       },
-                      child: const Text('Logout', style: TextStyle(color: Colors.red)),
+                      child: const Text(
+                        'Logout',
+                        style: TextStyle(color: Colors.red),
+                      ),
                     ),
                   ],
                 ),
@@ -78,47 +84,65 @@ class _HomePageState extends State<HomePage> {
           } else if (state is HomeLoaded) {
             final profile = state.profile;
             return SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildHeader(profile),
-                  const SizedBox(height: 30),
-                  Text(
-                    'Quick Actions',
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  GridView.count(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 15,
-                    mainAxisSpacing: 15,
-                    children: [
-                      _buildActionCard(
-                        Icons.calendar_today_rounded,
-                        'Attendance',
-                        Colors.blue,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => AttendancePage(
-                                employeeGUID: profile.employeeGUID,
-                              ),
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Quick Actions',
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        GridView.count(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 15,
+                          mainAxisSpacing: 15,
+                          children: [
+                            _buildActionCard(
+                              Icons.calendar_today_rounded,
+                              'Attendance',
+                              Colors.blue,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => AttendancePage(
+                                      employeeGUID: profile.employeeGUID,
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
-                          );
-                        },
-                      ),
-                      _buildActionCard(Icons.beach_access_rounded, 'Leave', Colors.orange),
-                      _buildActionCard(Icons.payments_rounded, 'Payroll', Colors.green),
-                      _buildActionCard(Icons.description_rounded, 'Documents', Colors.purple),
-                    ],
+                            _buildActionCard(
+                              Icons.beach_access_rounded,
+                              'Leave',
+                              Colors.orange,
+                            ),
+                            _buildActionCard(
+                              Icons.payments_rounded,
+                              'Payroll',
+                              Colors.green,
+                            ),
+                            _buildActionCard(
+                              Icons.description_rounded,
+                              'Documents',
+                              Colors.purple,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -133,7 +157,8 @@ class _HomePageState extends State<HomePage> {
                   Text(state.message, style: GoogleFonts.poppins()),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () => context.read<HomeBloc>().add(GetProfileRequested()),
+                    onPressed: () =>
+                        context.read<HomeBloc>().add(GetProfileRequested()),
                     child: const Text('Retry'),
                   ),
                 ],
@@ -146,68 +171,83 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildHeader(profile) {
+  Widget _buildHeader(dynamic profile) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
-      padding: const EdgeInsets.all(24),
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(25, 60, 25, 30),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF2193b0), Color(0xFF6dd5ed)],
+        gradient: LinearGradient(
+          colors: isDark
+              ? [const Color(0xFF1E293B), const Color(0xFF0F172A)]
+              : [const Color(0xFF2193b0), const Color(0xFF6dd5ed)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF2193b0).withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(35),
+          bottomRight: Radius.circular(35),
+        ),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
-            radius: 35,
-            backgroundColor: Colors.white.withOpacity(0.2),
-            child: Text(
-              profile.fullName[0].toUpperCase(),
-              style: GoogleFonts.poppins(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              CircleAvatar(
+                radius: 35,
+                backgroundColor: Colors.white.withValues(alpha: 0.2),
+                // backgroundImage: profile.avatarUrl != null
+                //   ? NetworkImage(profile.avatarUrl!)
+                //   : null,
+                // child: profile.avatarUrl == null
+                //     ? const Icon(Icons.person, size: 35, color: Colors.white)
+                //     : null,
               ),
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SettingsPage()),
+                  );
+                },
+                icon: const Icon(
+                  Icons.settings_outlined,
+                  color: Colors.white,
+                  size: 28,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Hello,',
+            style: GoogleFonts.poppins(fontSize: 16, color: Colors.white70),
+          ),
+          Text(
+            profile.fullName,
+            style: GoogleFonts.poppins(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Welcome,',
-                  style: GoogleFonts.poppins(color: Colors.white70, fontSize: 14),
-                ),
-                Text(
-                  profile.fullName,
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    '${profile.roleName} | ${profile.departmentName}',
-                    style: GoogleFonts.poppins(color: Colors.white, fontSize: 11),
-                  ),
-                ),
-              ],
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              '${profile.roleName} • ${profile.departmentName}',
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                color: Colors.white,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
@@ -215,20 +255,34 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildActionCard(IconData icon, String title, Color color, {VoidCallback? onTap}) {
+  Widget _buildActionCard(
+    IconData icon,
+    String title,
+    Color color, {
+    VoidCallback? onTap,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark
+              ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)
+              : Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
+            if (!isDark)
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
           ],
+          border: isDark
+              ? Border.all(color: Colors.white.withValues(alpha: 0.05))
+              : null,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -247,6 +301,7 @@ class _HomePageState extends State<HomePage> {
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.w600,
                 fontSize: 14,
+                color: isDark ? Colors.white : Colors.black87,
               ),
             ),
           ],
