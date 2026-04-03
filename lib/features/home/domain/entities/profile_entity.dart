@@ -7,6 +7,7 @@ class ProfileEntity extends Equatable {
   final String roleName;
   final String departmentName;
   final String? employeeCode;
+  final String? avatarUrl;
 
   const ProfileEntity({
     required this.username,
@@ -15,6 +16,7 @@ class ProfileEntity extends Equatable {
     required this.departmentName,
     this.employeeCode,
     required this.employeeGUID,
+    required this.avatarUrl,
   });
 
   @override
@@ -24,5 +26,7 @@ class ProfileEntity extends Equatable {
     roleName,
     departmentName,
     employeeCode,
+    avatarUrl,
+    employeeGUID,
   ];
 }
