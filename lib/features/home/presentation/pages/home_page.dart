@@ -199,12 +199,12 @@ class _HomePageState extends State<HomePage> {
               CircleAvatar(
                 radius: 35,
                 backgroundColor: Colors.white.withValues(alpha: 0.2),
-                // backgroundImage: profile.avatarUrl != null
-                //   ? NetworkImage(profile.avatarUrl!)
-                //   : null,
-                // child: profile.avatarUrl == null
-                //     ? const Icon(Icons.person, size: 35, color: Colors.white)
-                //     : null,
+                backgroundImage: (profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty)
+                  ? NetworkImage(profile.avatarUrl!)
+                  : null,
+                child: (profile.avatarUrl == null || profile.avatarUrl!.isEmpty)
+                    ? const Icon(Icons.person, size: 35, color: Colors.white)
+                    : null,
               ),
               IconButton(
                 onPressed: () {
