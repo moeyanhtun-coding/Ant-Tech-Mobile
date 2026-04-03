@@ -53,16 +53,18 @@ class _AttendancePageState extends State<AttendancePage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FB),
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: Text(
           'Attendance Record',
           style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
         ),
         elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
         actions: [
           IconButton(
             icon: const Icon(Icons.calendar_month_rounded),
@@ -102,14 +104,21 @@ class _AttendancePageState extends State<AttendancePage> {
   }
 
   Widget _buildMonthSelectorHeader() {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(24),
           bottomRight: Radius.circular(24),
+        ),
+        border: Border(
+          bottom: BorderSide(
+            color: colorScheme.onSurface.withValues(alpha: 0.1),
+          ),
         ),
       ),
       child: Row(
@@ -122,7 +131,7 @@ class _AttendancePageState extends State<AttendancePage> {
                 'Selected Month',
                 style: GoogleFonts.poppins(
                   fontSize: 12,
-                  color: Colors.grey[500],
+                  color: colorScheme.onSurface.withValues(alpha: 0.5),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -131,7 +140,7 @@ class _AttendancePageState extends State<AttendancePage> {
                 style: GoogleFonts.poppins(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: colorScheme.onSurface,
                 ),
               ),
             ],
@@ -141,8 +150,8 @@ class _AttendancePageState extends State<AttendancePage> {
             icon: const Icon(Icons.edit_calendar_rounded, size: 18),
             label: const Text('Change'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2193b0).withValues(alpha: 0.1),
-              foregroundColor: const Color(0xFF2193b0),
+              backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
+              foregroundColor: colorScheme.primary,
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
