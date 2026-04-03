@@ -12,6 +12,12 @@ import 'features/home/domain/repositories/home_repository.dart';
 import 'features/home/domain/usecases/get_profile_usecase.dart';
 import 'features/home/presentation/bloc/home_bloc.dart';
 
+import 'features/attendance/data/datasources/attendance_remote_data_source.dart';
+import 'features/attendance/data/repositories/attendance_repository_impl.dart';
+import 'features/attendance/domain/repositories/attendance_repository.dart';
+import 'features/attendance/domain/usecases/get_attendance_usecase.dart';
+import 'features/attendance/presentation/bloc/attendance_bloc.dart';
+
 final sl = GetIt.instance; // sl is short for Service Locator
 
 Future<void> init() async {
@@ -50,6 +56,23 @@ Future<void> init() async {
   // Data sources
   sl.registerLazySingleton<HomeRemoteDataSource>(
     () => HomeRemoteDataSourceImpl(sl<DioClient>().dio),
+  );
+
+  // Features - Attendance
+  // Bloc
+  sl.registerFactory(() => AttendanceBloc(getAttendanceUseCase: sl()));
+
+  // Use cases
+  sl.registerLazySingleton(() => GetAttendanceUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<AttendanceRepository>(
+    () => AttendanceRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<AttendanceRemoteDataSource>(
+    () => AttendanceRemoteDataSourceImpl(sl<DioClient>().dio),
   );
 
   // Core
