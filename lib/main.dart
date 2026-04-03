@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/home/presentation/bloc/home_bloc.dart';
+import 'features/attendance/presentation/bloc/attendance_bloc.dart';
 import 'features/splash/presentation/pages/splash_screen.dart';
 import 'injection_container.dart' as di;
 
@@ -24,6 +25,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<HomeBloc>(
           create: (_) => di.sl<HomeBloc>(),
+        ),
+        BlocProvider<AttendanceBloc>(
+          create: (_) => di.sl<AttendanceBloc>(),
         ),
       ],
       child: MaterialApp(
