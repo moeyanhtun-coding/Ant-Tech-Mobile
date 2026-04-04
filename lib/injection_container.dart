@@ -16,6 +16,7 @@ import 'features/attendance/data/datasources/attendance_remote_data_source.dart'
 import 'features/attendance/data/repositories/attendance_repository_impl.dart';
 import 'features/attendance/domain/repositories/attendance_repository.dart';
 import 'features/attendance/domain/usecases/get_attendance_usecase.dart';
+import 'features/attendance/domain/usecases/scan_qr_code_usecase.dart';
 import 'features/attendance/presentation/bloc/attendance_bloc.dart';
 import 'features/settings/presentation/bloc/theme_bloc.dart';
 
@@ -61,11 +62,15 @@ Future<void> init() async {
 
   // Features - Attendance
   // Bloc
-  sl.registerFactory(() => AttendanceBloc(getAttendanceUseCase: sl()));
+  sl.registerFactory(() => AttendanceBloc(
+        getAttendanceUseCase: sl(),
+        scanQRCodeUseCase: sl(),
+      ));
   sl.registerLazySingleton(() => ThemeBloc());
 
   // Use cases
   sl.registerLazySingleton(() => GetAttendanceUseCase(sl()));
+  sl.registerLazySingleton(() => ScanQRCodeUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<AttendanceRepository>(
