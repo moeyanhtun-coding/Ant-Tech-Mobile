@@ -16,7 +16,9 @@ class AttendanceCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.3) : Colors.white,
+        color: isDark
+            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)
+            : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           if (!isDark)
@@ -26,9 +28,9 @@ class AttendanceCard extends StatelessWidget {
               offset: const Offset(0, 4),
             ),
         ],
-        border: isDark 
-          ? Border.all(color: Colors.white.withValues(alpha: 0.05)) 
-          : null,
+        border: isDark
+            ? Border.all(color: Colors.white.withValues(alpha: 0.05))
+            : null,
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -65,9 +67,27 @@ class AttendanceCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildTimeInfo('Check In', record.checkInTime ?? '--:--', Icons.login_rounded, Colors.green, colorScheme),
-                _buildTimeInfo('Check Out', record.checkOutTime ?? '--:--', Icons.logout_rounded, Colors.orange, colorScheme),
-                _buildTimeInfo('Total', record.totalHours ?? '00:00', Icons.timer_outlined, Colors.blue, colorScheme),
+                _buildTimeInfo(
+                  'Check In',
+                  _formatTime(record.checkInTime),
+                  Icons.login_rounded,
+                  Colors.green,
+                  colorScheme,
+                ),
+                _buildTimeInfo(
+                  'Check Out',
+                  _formatTime(record.checkOutTime),
+                  Icons.logout_rounded,
+                  Colors.orange,
+                  colorScheme,
+                ),
+                _buildTimeInfo(
+                  'Total',
+                  record.totalHours ?? '00:00',
+                  Icons.timer_outlined,
+                  Colors.blue,
+                  colorScheme,
+                ),
               ],
             ),
           ],
@@ -85,15 +105,48 @@ class AttendanceCard extends StatelessWidget {
     }
   }
 
+  String _formatTime(String? timeStr) {
+    if (timeStr == null ||
+        timeStr.isEmpty ||
+        timeStr == '--:--' ||
+        timeStr == '00:00')
+      return '--:--';
+    try {
+      final DateFormat outputFormat = DateFormat('hh:mm a');
+      DateTime dateTime;
+      try {
+        dateTime = DateFormat('HH:mm:ss').parse(timeStr);
+      } catch (_) {
+        try {
+          dateTime = DateFormat('HH:mm').parse(timeStr);
+        } catch (_) {
+          return timeStr;
+        }
+      }
+      return outputFormat.format(dateTime);
+    } catch (e) {
+      return timeStr;
+    }
+  }
+
   Widget _buildStatusBadge(String status) {
     Color bgColor;
     Color textColor;
     Color borderColor;
 
-    if (status.contains('Present')) {
+    if (status == 'Present') {
       bgColor = const Color(0xFFDCFCE7);
       textColor = const Color(0xFF166534);
       borderColor = const Color(0xFFBBF7D0);
+    } else if (status == 'Absent') {
+      bgColor = const Color(0xFFF3F4F6);
+      textColor = const Color(0xFF1F2937);
+      borderColor = const Color(0xFFE5E7EB);
+    } else if (status.contains('Late') && status.contains('Early')) {
+      // Late + Early Left
+      bgColor = const Color(0xFFFEF3C7); // Amber 100
+      textColor = const Color(0xFF92400E); // Amber 800
+      borderColor = const Color(0xFFFDE68A); // Amber 200
     } else if (status.contains('Late')) {
       bgColor = const Color(0xFFFEE2E2);
       textColor = const Color(0xFF991B1B);
@@ -102,15 +155,16 @@ class AttendanceCard extends StatelessWidget {
       bgColor = const Color(0xFFFEF9C3);
       textColor = const Color(0xFF854D0E);
       borderColor = const Color(0xFFFEF08A);
-    } else if (status == 'Absent') {
-      bgColor = const Color(0xFFF3F4F6);
-      textColor = const Color(0xFF1F2937);
-      borderColor = const Color(0xFFE5E7EB);
     } else {
       bgColor = const Color(0xFFDBEAFE);
       textColor = const Color(0xFF1E3A8A);
       borderColor = const Color(0xFFBFDBFE);
     }
+
+    // Display override for refined labels
+    String displayStatus = status;
+    if (status == 'Late + EarlyLeave') displayStatus = 'Late + Early Left';
+    if (status == 'EarlyLeave') displayStatus = 'Early Left';
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -120,7 +174,7 @@ class AttendanceCard extends StatelessWidget {
         border: Border.all(color: borderColor),
       ),
       child: Text(
-        status,
+        displayStatus,
         style: GoogleFonts.poppins(
           fontSize: 11,
           fontWeight: FontWeight.w600,
@@ -130,7 +184,13 @@ class AttendanceCard extends StatelessWidget {
     );
   }
 
-  Widget _buildTimeInfo(String label, String time, IconData icon, Color color, ColorScheme colorScheme) {
+  Widget _buildTimeInfo(
+    String label,
+    String time,
+    IconData icon,
+    Color color,
+    ColorScheme colorScheme,
+  ) {
     return Column(
       children: [
         Icon(icon, size: 18, color: color.withValues(alpha: 0.7)),
