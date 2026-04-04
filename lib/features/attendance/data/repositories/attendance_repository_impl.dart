@@ -26,4 +26,22 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, String>> scanQRCode({
+    required String employeeGUID,
+    required String locationGUID,
+  }) async {
+    try {
+      final message = await remoteDataSource.scanQRCode(
+        employeeGUID: employeeGUID,
+        locationGUID: locationGUID,
+      );
+      return Right(message);
+    } on ServerFailure catch (e) {
+      return Left(e);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }
