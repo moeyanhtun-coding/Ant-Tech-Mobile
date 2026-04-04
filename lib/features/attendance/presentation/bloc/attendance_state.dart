@@ -29,3 +29,21 @@ class AttendanceFailure extends AttendanceState {
   @override
   List<Object?> get props => [message];
 }
+
+class ScanQRCodeSuccess extends AttendanceState {
+  final String message;
+
+  const ScanQRCodeSuccess({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class ScanQRCodeFailure extends AttendanceState {
+  final String message;
+
+  const ScanQRCodeFailure({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
