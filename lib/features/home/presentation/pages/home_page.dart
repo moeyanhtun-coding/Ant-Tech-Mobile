@@ -57,12 +57,13 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildHeader(profile),
                   Padding(
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        _buildHeader(profile),
+                        const SizedBox(height: 20),
                         Text(
                           'Quick Actions',
                           style: GoogleFonts.poppins(
@@ -146,7 +147,7 @@ class _HomePageState extends State<HomePage> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(25, 60, 25, 30),
+      padding: const EdgeInsets.fromLTRB(25, 30, 25, 30),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isDark
@@ -155,13 +156,12 @@ class _HomePageState extends State<HomePage> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(35),
-          bottomRight: Radius.circular(35),
-        ),
+        borderRadius: const BorderRadius.all(Radius.circular(35)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -169,43 +169,50 @@ class _HomePageState extends State<HomePage> {
               CircleAvatar(
                 radius: 35,
                 backgroundColor: Colors.white.withValues(alpha: 0.2),
-                backgroundImage: (profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty)
-                  ? NetworkImage(profile.avatarUrl!)
-                  : null,
+                backgroundImage:
+                    (profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty)
+                    ? NetworkImage(profile.avatarUrl!)
+                    : null,
                 child: (profile.avatarUrl == null || profile.avatarUrl!.isEmpty)
                     ? const Icon(Icons.person, size: 35, color: Colors.white)
                     : null,
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          Text(
-            'Hello,',
-            style: GoogleFonts.poppins(fontSize: 16, color: Colors.white70),
-          ),
-          Text(
-            profile.fullName,
-            style: GoogleFonts.poppins(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              '${profile.roleName} • ${profile.departmentName}',
-              style: GoogleFonts.poppins(
-                fontSize: 12,
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
+          const SizedBox(width: 20),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+
+            children: [
+              Text(
+                'Hello,',
+                style: GoogleFonts.poppins(fontSize: 16, color: Colors.white70),
               ),
-            ),
+              Text(
+                profile.fullName,
+                style: GoogleFonts.poppins(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '${profile.roleName} • ${profile.departmentName}',
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
