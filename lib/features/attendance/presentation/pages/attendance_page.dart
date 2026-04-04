@@ -7,6 +7,7 @@ import '../bloc/attendance_bloc.dart';
 import '../bloc/attendance_event.dart';
 import '../bloc/attendance_state.dart';
 import '../widgets/attendance_card.dart';
+import 'scan_attendance_page.dart';
 
 class AttendancePage extends StatefulWidget {
   final String employeeGUID;
@@ -72,33 +73,62 @@ class _AttendancePageState extends State<AttendancePage> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          _buildMonthSelectorHeader(),
-          Expanded(
-            child: BlocBuilder<AttendanceBloc, AttendanceState>(
-              builder: (context, state) {
-                if (state is AttendanceLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (state is AttendanceLoaded) {
-                  if (state.records.isEmpty) {
-                    return _buildEmptyState();
+      body: BlocListener<AttendanceBloc, AttendanceState>(
+        listener: (context, state) {
+          if (state is ScanQRCodeSuccess) {
+            _fetchAttendance();
+          }
+        },
+        child: Column(
+          children: [
+            _buildMonthSelectorHeader(),
+            Expanded(
+              child: BlocBuilder<AttendanceBloc, AttendanceState>(
+                builder: (context, state) {
+                  if (state is AttendanceLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (state is AttendanceLoaded) {
+                    if (state.records.isEmpty) {
+                      return _buildEmptyState();
+                    }
+                    return ListView.builder(
+                      padding: const EdgeInsets.all(20),
+                      itemCount: state.records.length,
+                      itemBuilder: (context, index) {
+                        return AttendanceCard(record: state.records[index]);
+                      },
+                    );
+                  } else if (state is AttendanceFailure) {
+                    return _buildErrorState(state.message);
                   }
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(20),
-                    itemCount: state.records.length,
-                    itemBuilder: (context, index) {
-                      return AttendanceCard(record: state.records[index]);
-                    },
-                  );
-                } else if (state is AttendanceFailure) {
-                  return _buildErrorState(state.message);
-                }
-                return const SizedBox.shrink();
-              },
+                  return const SizedBox.shrink();
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ScanAttendancePage(
+                employeeGUID: widget.employeeGUID,
+              ),
+            ),
+          );
+          if (result == true) {
+            _fetchAttendance();
+          }
+        },
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
+        icon: const Icon(Icons.qr_code_scanner_rounded),
+        label: Text(
+          'Scan QR',
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+        ),
       ),
     );
   }
