@@ -77,8 +77,6 @@ class _AttendancePageState extends State<AttendancePage> {
         listener: (context, state) {
           if (state is ScanQRCodeSuccess) {
             _fetchAttendance();
-          } else {
-            _fetchAttendance();
           }
         },
         child: Column(
