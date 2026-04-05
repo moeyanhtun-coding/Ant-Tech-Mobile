@@ -30,11 +30,11 @@ class _AttendancePageState extends State<AttendancePage> {
   void _fetchAttendance() {
     final monthStr = DateFormat('yyyy-MM').format(_selectedMonth);
     context.read<AttendanceBloc>().add(
-          GetAttendanceRequested(
-            employeeGUID: widget.employeeGUID,
-            month: monthStr,
-          ),
-        );
+      GetAttendanceRequested(
+        employeeGUID: widget.employeeGUID,
+        month: monthStr,
+      ),
+    );
   }
 
   Future<void> _selectMonth(BuildContext context) async {
@@ -77,6 +77,8 @@ class _AttendancePageState extends State<AttendancePage> {
         listener: (context, state) {
           if (state is ScanQRCodeSuccess) {
             _fetchAttendance();
+          } else {
+            _fetchAttendance();
           }
         },
         child: Column(
@@ -113,9 +115,8 @@ class _AttendancePageState extends State<AttendancePage> {
           final result = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ScanAttendancePage(
-                employeeGUID: widget.employeeGUID,
-              ),
+              builder: (context) =>
+                  ScanAttendancePage(employeeGUID: widget.employeeGUID),
             ),
           );
           if (result == true) {
@@ -202,10 +203,7 @@ class _AttendancePageState extends State<AttendancePage> {
           const SizedBox(height: 16),
           Text(
             'No records found for this month',
-            style: GoogleFonts.poppins(
-              color: Colors.grey[600],
-              fontSize: 16,
-            ),
+            style: GoogleFonts.poppins(color: Colors.grey[600], fontSize: 16),
           ),
         ],
       ),
