@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../attendance/presentation/pages/attendance_page.dart';
-import '../../../settings/presentation/pages/settings_page.dart';
 import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';
 import '../bloc/home_state.dart';
@@ -35,17 +34,6 @@ class _HomePageState extends State<HomePage> {
         elevation: 0,
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const SettingsPage()),
-              );
-            },
-          ),
-        ],
       ),
       body: BlocBuilder<HomeBloc, HomeState>(
         builder: (context, state) {
