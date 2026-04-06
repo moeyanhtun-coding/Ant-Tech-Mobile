@@ -11,7 +11,8 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
 
@@ -19,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 1),
       vsync: this,
     );
     _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
@@ -32,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   void _nextStep() async {
     final token = await LocalStorage.getToken();
     await Future.delayed(const Duration(seconds: 3));
-    
+
     if (mounted) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
