@@ -7,7 +7,6 @@ import '../bloc/attendance_bloc.dart';
 import '../bloc/attendance_event.dart';
 import '../bloc/attendance_state.dart';
 import '../widgets/attendance_card.dart';
-import 'scan_attendance_page.dart';
 
 class AttendancePage extends StatefulWidget {
   final String employeeGUID;
@@ -106,27 +105,6 @@ class _AttendancePageState extends State<AttendancePage> {
               ),
             ),
           ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  ScanAttendancePage(employeeGUID: widget.employeeGUID),
-            ),
-          );
-          if (result == true) {
-            _fetchAttendance();
-          }
-        },
-        backgroundColor: colorScheme.primary,
-        foregroundColor: colorScheme.onPrimary,
-        icon: const Icon(Icons.qr_code_scanner_rounded),
-        label: Text(
-          'Scan QR',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
         ),
       ),
     );
