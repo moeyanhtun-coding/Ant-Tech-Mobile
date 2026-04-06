@@ -45,7 +45,10 @@ Future<void> init() async {
 
   // Features - Home
   // Bloc
-  sl.registerFactory(() => HomeBloc(getProfileUseCase: sl()));
+  sl.registerFactory(() => HomeBloc(
+        getProfileUseCase: sl(),
+        attendanceRepository: sl(),
+      ));
 
   // Use cases
   sl.registerLazySingleton(() => GetProfileUseCase(sl()));
