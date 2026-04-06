@@ -32,6 +32,7 @@ class _HomePageState extends State<HomePage> {
           style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
         ),
         elevation: 0,
+        centerTitle: false,
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
       ),
