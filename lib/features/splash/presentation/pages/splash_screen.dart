@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:at_hr_mobile/features/auth/presentation/pages/login_page.dart';
-import 'package:at_hr_mobile/features/home/presentation/pages/home_page.dart';
+import 'package:at_hr_mobile/features/main/presentation/pages/main_page.dart';
 import 'package:at_hr_mobile/core/utils/local_storage.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -37,7 +37,7 @@ class _SplashScreenState extends State<SplashScreen>
     if (mounted) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (_) => token != null ? const HomePage() : const LoginPage(),
+          builder: (_) => token != null ? const MainPage() : const LoginPage(),
         ),
       );
     }
