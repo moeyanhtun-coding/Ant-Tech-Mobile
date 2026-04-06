@@ -23,6 +23,7 @@ class SettingsPage extends StatelessWidget {
           style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
         ),
         elevation: 0,
+        centerTitle: false,
         backgroundColor: Colors.transparent,
         foregroundColor: isDark ? Colors.white : Colors.black87,
       ),
@@ -126,10 +127,7 @@ class SettingsPage extends StatelessWidget {
               Navigator.pop(context);
               _onLogout(context);
             },
-            child: const Text(
-              'Logout',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('Logout', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -168,14 +166,18 @@ class SettingsPage extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isSelected 
-                ? colorScheme.primary.withValues(alpha: 0.1) 
-                : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white),
+              color: isSelected
+                  ? colorScheme.primary.withValues(alpha: 0.1)
+                  : (isDark
+                        ? Colors.white.withValues(alpha: 0.05)
+                        : Colors.white),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isSelected 
-                  ? colorScheme.primary 
-                  : (isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05)),
+                color: isSelected
+                    ? colorScheme.primary
+                    : (isDark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : Colors.black.withValues(alpha: 0.05)),
                 width: 1.5,
               ),
             ),
@@ -184,12 +186,16 @@ class SettingsPage extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: isSelected ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.1),
+                    color: isSelected
+                        ? colorScheme.primary
+                        : colorScheme.onSurface.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     icon,
-                    color: isSelected ? Colors.white : colorScheme.onSurface.withValues(alpha: 0.7),
+                    color: isSelected
+                        ? Colors.white
+                        : colorScheme.onSurface.withValues(alpha: 0.7),
                     size: 20,
                   ),
                 ),
@@ -238,7 +244,9 @@ class SettingsPage extends StatelessWidget {
         color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.1)
+              : Colors.black.withValues(alpha: 0.05),
         ),
       ),
       child: Row(
