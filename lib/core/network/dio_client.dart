@@ -29,7 +29,8 @@ class DioClient {
       InterceptorsWrapper(
         onError: (DioException e, ErrorInterceptorHandler handler) async {
           if (e.response?.statusCode == 401) {
-            if (!_isSessionDialogShowing) {
+            final isLoginRequest = e.requestOptions.path.contains(AppConstants.loginEndpoint);
+            if (!isLoginRequest && !_isSessionDialogShowing) {
               _isSessionDialogShowing = true;
               
               await LocalStorage.clear();
