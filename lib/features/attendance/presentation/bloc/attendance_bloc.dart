@@ -42,6 +42,8 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     final result = await scanQRCodeUseCase(ScanQRCodeParams(
       employeeGUID: event.employeeGUID,
       locationGUID: event.locationGUID,
+      latitude: event.latitude,
+      longitude: event.longitude,
     ));
 
     result.fold(
