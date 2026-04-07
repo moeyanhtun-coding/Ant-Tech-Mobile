@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:geolocator/geolocator.dart';
 import '../bloc/attendance_bloc.dart';
 import '../bloc/attendance_event.dart';
 import '../bloc/attendance_state.dart';
@@ -28,15 +29,44 @@ class _ScanAttendancePageState extends State<ScanAttendancePage> {
   }
 
   Future<void> _checkPermission() async {
-    final status = await Permission.camera.request();
-    if (status.isGranted) {
+    final cameraStatus = await Permission.camera.request();
+    final locationStatus = await Permission.locationWhenInUse.request();
+
+    if (cameraStatus.isGranted && locationStatus.isGranted) {
+      // Check if location services are enabled
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Location services are disabled. Please enable GPS in settings.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          Navigator.pop(context);
+        }
+        return;
+      }
+
       setState(() {
         _hasStarted = true;
       });
     } else {
       if (mounted) {
+        String message = 'Camera and Location permissions are required';
+        if (!cameraStatus.isGranted && !locationStatus.isGranted) {
+          message = 'Camera and Location permissions are required';
+        } else if (!cameraStatus.isGranted) {
+          message = 'Camera permission is required';
+        } else {
+          message = 'Location permission is required';
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Camera permission is required to scan QR codes')),
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.red,
+          ),
         );
         Navigator.pop(context);
       }
@@ -49,7 +79,7 @@ class _ScanAttendancePageState extends State<ScanAttendancePage> {
     super.dispose();
   }
 
-  void _onDetect(BarcodeCapture capture) {
+  Future<void> _onDetect(BarcodeCapture capture) async {
     if (_isProcessing) return;
 
     final List<Barcode> barcodes = capture.barcodes;
@@ -59,14 +89,38 @@ class _ScanAttendancePageState extends State<ScanAttendancePage> {
         setState(() {
           _isProcessing = true;
         });
-        
-        // The QR code contains the LocationGUID
-        context.read<AttendanceBloc>().add(
-              ScanQRCodeRequested(
-                employeeGUID: widget.employeeGUID,
-                locationGUID: code,
+
+        try {
+          // Get high-accuracy position
+          Position position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high,
+            timeLimit: const Duration(seconds: 10),
+          );
+
+          if (!mounted) return;
+
+          // The QR code contains the LocationGUID (and now dynamic token info from the backend)
+          context.read<AttendanceBloc>().add(
+                ScanQRCodeRequested(
+                  employeeGUID: widget.employeeGUID,
+                  locationGUID: code,
+                  latitude: position.latitude,
+                  longitude: position.longitude,
+                ),
+              );
+        } catch (e) {
+          if (mounted) {
+            setState(() {
+              _isProcessing = false;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error getting location: $e'),
+                backgroundColor: Colors.red,
               ),
             );
+          }
+        }
       }
     }
   }
