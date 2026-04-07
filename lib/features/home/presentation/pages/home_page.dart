@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import '../../../attendance/presentation/bloc/attendance_bloc.dart';
+import '../../../attendance/presentation/bloc/attendance_state.dart';
 import '../../../attendance/presentation/pages/attendance_page.dart';
 import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';
@@ -36,7 +39,20 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
       ),
-      body: BlocBuilder<HomeBloc, HomeState>(
+      body: BlocListener<AttendanceBloc, AttendanceState>(
+        listener: (context, state) {
+          if (state is ScanQRCodeSuccess) {
+            final homeState = context.read<HomeBloc>().state;
+            if (homeState is HomeLoaded) {
+              final currentMonth = DateFormat('yyyy-MM').format(DateTime.now());
+              context.read<HomeBloc>().add(GetAttendanceSummaryRequested(
+                    employeeGUID: homeState.profile.employeeGUID,
+                    month: currentMonth,
+                  ));
+            }
+          }
+        },
+        child: BlocBuilder<HomeBloc, HomeState>(
         builder: (context, state) {
           if (state is HomeLoading) {
             return const Center(child: CircularProgressIndicator());
@@ -106,6 +122,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ],
                         ),
+                        SizedBox(height: 70),
                       ],
                     ),
                   ),
@@ -133,6 +150,7 @@ class _HomePageState extends State<HomePage> {
           return const SizedBox.shrink();
         },
       ),
+    ),
     );
   }
 
@@ -297,9 +315,7 @@ class _HomePageState extends State<HomePage> {
       decoration: BoxDecoration(
         color: color.withValues(alpha: isDark ? 0.15 : 0.08),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: color.withValues(alpha: isDark ? 0.2 : 0.15),
-        ),
+        border: Border.all(color: color.withValues(alpha: isDark ? 0.2 : 0.15)),
       ),
       child: Row(
         children: [
