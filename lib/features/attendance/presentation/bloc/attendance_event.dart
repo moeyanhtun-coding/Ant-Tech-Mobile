@@ -23,12 +23,16 @@ class GetAttendanceRequested extends AttendanceEvent {
 class ScanQRCodeRequested extends AttendanceEvent {
   final String employeeGUID;
   final String locationGUID;
+  final double? latitude;
+  final double? longitude;
 
   const ScanQRCodeRequested({
     required this.employeeGUID,
     required this.locationGUID,
+    this.latitude,
+    this.longitude,
   });
 
   @override
-  List<Object?> get props => [employeeGUID, locationGUID];
+  List<Object?> get props => [employeeGUID, locationGUID, latitude, longitude];
 }
