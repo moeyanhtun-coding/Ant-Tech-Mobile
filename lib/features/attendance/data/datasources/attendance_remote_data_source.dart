@@ -12,6 +12,8 @@ abstract class AttendanceRemoteDataSource {
   Future<String> scanQRCode({
     required String employeeGUID,
     required String locationGUID,
+    double? latitude,
+    double? longitude,
   });
 }
 
@@ -58,6 +60,8 @@ class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
   Future<String> scanQRCode({
     required String employeeGUID,
     required String locationGUID,
+    double? latitude,
+    double? longitude,
   }) async {
     try {
       final token = await LocalStorage.getToken();
@@ -67,6 +71,8 @@ class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
         data: {
           'EmployeeGUID': employeeGUID,
           'LocationGUID': locationGUID,
+          'Latitude': latitude,
+          'Longitude': longitude,
         },
         options: Options(
           headers: {
