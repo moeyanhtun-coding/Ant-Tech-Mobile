@@ -31,11 +31,15 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
   Future<Either<Failure, String>> scanQRCode({
     required String employeeGUID,
     required String locationGUID,
+    double? latitude,
+    double? longitude,
   }) async {
     try {
       final message = await remoteDataSource.scanQRCode(
         employeeGUID: employeeGUID,
         locationGUID: locationGUID,
+        latitude: latitude,
+        longitude: longitude,
       );
       return Right(message);
     } on ServerFailure catch (e) {
