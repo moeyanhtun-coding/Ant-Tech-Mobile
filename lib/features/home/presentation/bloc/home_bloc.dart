@@ -47,6 +47,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     final currentState = state;
     if (currentState is! HomeLoaded) return;
 
+    emit(currentState.copyWith(isSummaryLoading: true));
+
     final result = await attendanceRepository.getAttendanceByEmployee(
       employeeGUID: event.employeeGUID,
       month: event.month,
