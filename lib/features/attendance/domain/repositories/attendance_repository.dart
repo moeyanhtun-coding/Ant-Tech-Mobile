@@ -11,5 +11,7 @@ abstract class AttendanceRepository {
   Future<Either<Failure, String>> scanQRCode({
     required String employeeGUID,
     required String locationGUID,
+    double? latitude,
+    double? longitude,
   });
 }
