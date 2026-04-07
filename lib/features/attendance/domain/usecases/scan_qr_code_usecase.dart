@@ -6,8 +6,15 @@ import '../repositories/attendance_repository.dart';
 class ScanQRCodeParams {
   final String employeeGUID;
   final String locationGUID;
+  final double? latitude;
+  final double? longitude;
 
-  ScanQRCodeParams({required this.employeeGUID, required this.locationGUID});
+  ScanQRCodeParams({
+    required this.employeeGUID,
+    required this.locationGUID,
+    this.latitude,
+    this.longitude,
+  });
 }
 
 class ScanQRCodeUseCase implements UseCase<String, ScanQRCodeParams> {
