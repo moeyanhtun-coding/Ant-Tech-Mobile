@@ -47,5 +47,7 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>This app requires camera permission to scan QR codes for attendance tracking.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app requires location permission to verify your physical presence during attendance check-in and check-out.</string>
 </dict>
 </plist>
