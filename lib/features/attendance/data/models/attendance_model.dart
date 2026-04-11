@@ -12,6 +12,10 @@ class AttendanceModel extends AttendanceEntity {
     super.scheduledStart,
     super.scheduledEnd,
     super.avatarUrl,
+    super.checkInLatitude,
+    super.checkInLongitude,
+    super.checkOutLatitude,
+    super.checkOutLongitude,
   });
 
   factory AttendanceModel.fromJson(Map<String, dynamic> json) {
@@ -26,9 +30,14 @@ class AttendanceModel extends AttendanceEntity {
       scheduledStart: json['scheduledStart'],
       scheduledEnd: json['scheduledEnd'],
       avatarUrl: json['avatarUrl'],
+      checkInLatitude: (json['checkInLatitude'] as num?)?.toDouble(),
+      checkInLongitude: (json['checkInLongitude'] as num?)?.toDouble(),
+      checkOutLatitude: (json['checkOutLatitude'] as num?)?.toDouble(),
+      checkOutLongitude: (json['checkOutLongitude'] as num?)?.toDouble(),
     );
   }
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       'date': date,
@@ -41,6 +50,10 @@ class AttendanceModel extends AttendanceEntity {
       'scheduledStart': scheduledStart,
       'scheduledEnd': scheduledEnd,
       'avatarUrl': avatarUrl,
+      'checkInLatitude': checkInLatitude,
+      'checkInLongitude': checkInLongitude,
+      'checkOutLatitude': checkOutLatitude,
+      'checkOutLongitude': checkOutLongitude,
     };
   }
 }
