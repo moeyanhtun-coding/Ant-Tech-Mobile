@@ -27,6 +27,8 @@ class ScanQRCodeUseCase implements UseCase<String, ScanQRCodeParams> {
     return await repository.scanQRCode(
       employeeGUID: params.employeeGUID,
       locationGUID: params.locationGUID,
+      latitude: params.latitude,
+      longitude: params.longitude,
     );
   }
 }
