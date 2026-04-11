@@ -73,6 +73,7 @@ class AttendanceCard extends StatelessWidget {
                   Icons.login_rounded,
                   Colors.green,
                   colorScheme,
+                  hasLocation: record.checkInLatitude != null && record.checkInLongitude != null,
                 ),
                 _buildTimeInfo(
                   'Check Out',
@@ -80,6 +81,7 @@ class AttendanceCard extends StatelessWidget {
                   Icons.logout_rounded,
                   Colors.orange,
                   colorScheme,
+                  hasLocation: record.checkOutLatitude != null && record.checkOutLongitude != null,
                 ),
                 _buildTimeInfo(
                   'Total',
@@ -189,11 +191,30 @@ class AttendanceCard extends StatelessWidget {
     String time,
     IconData icon,
     Color color,
-    ColorScheme colorScheme,
-  ) {
+    ColorScheme colorScheme, {
+    bool hasLocation = false,
+  }) {
     return Column(
       children: [
-        Icon(icon, size: 18, color: color.withValues(alpha: 0.7)),
+        Stack(
+          alignment: Alignment.topRight,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 4),
+              child: Icon(icon, size: 18, color: color.withValues(alpha: 0.7)),
+            ),
+            if (hasLocation)
+              const Positioned(
+                right: 0,
+                top: 0,
+                child: Icon(
+                  Icons.location_on_rounded,
+                  size: 8,
+                  color: Colors.red,
+                ),
+              ),
+          ],
+        ),
         const SizedBox(height: 4),
         Text(
           label,
