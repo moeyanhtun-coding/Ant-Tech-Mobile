@@ -7,10 +7,14 @@ class AttendanceEntity extends Equatable {
   final String? checkOutTime;
   final String? totalHours;
   final String attendanceStatus;
+  final String? avatarUrl;
   final String? shiftName;
   final String? scheduledStart;
   final String? scheduledEnd;
-  final String? avatarUrl;
+  final double? checkInLatitude;
+  final double? checkInLongitude;
+  final double? checkOutLatitude;
+  final double? checkOutLongitude;
 
   const AttendanceEntity({
     required this.date,
@@ -23,6 +27,10 @@ class AttendanceEntity extends Equatable {
     this.scheduledStart,
     this.scheduledEnd,
     this.avatarUrl,
+    this.checkInLatitude,
+    this.checkInLongitude,
+    this.checkOutLatitude,
+    this.checkOutLongitude,
   });
 
   @override
@@ -37,5 +45,9 @@ class AttendanceEntity extends Equatable {
     scheduledStart,
     scheduledEnd,
     avatarUrl,
+    checkInLatitude,
+    checkInLongitude,
+    checkOutLatitude,
+    checkOutLongitude,
   ];
 }
