@@ -12,12 +12,12 @@ import 'features/home/domain/repositories/home_repository.dart';
 import 'features/home/domain/usecases/get_profile_usecase.dart';
 import 'features/home/presentation/bloc/home_bloc.dart';
 
-import 'features/attendance/data/datasources/attendance_remote_data_source.dart';
-import 'features/attendance/data/repositories/attendance_repository_impl.dart';
-import 'features/attendance/domain/repositories/attendance_repository.dart';
-import 'features/attendance/domain/usecases/get_attendance_usecase.dart';
-import 'features/attendance/domain/usecases/scan_qr_code_usecase.dart';
 import 'features/attendance/presentation/bloc/attendance_bloc.dart';
+import 'features/payroll/data/datasources/pay_slip_remote_data_source.dart';
+import 'features/payroll/data/repositories/pay_slip_repository_impl.dart';
+import 'features/payroll/domain/repositories/pay_slip_repository.dart';
+import 'features/payroll/domain/usecases/get_pay_slips_usecase.dart';
+import 'features/payroll/presentation/bloc/pay_slip_bloc.dart';
 import 'features/settings/presentation/bloc/theme_bloc.dart';
 
 final sl = GetIt.instance; // sl is short for Service Locator
@@ -64,26 +64,30 @@ Future<void> init() async {
   );
 
   // Features - Attendance
-  // Bloc
   sl.registerFactory(() => AttendanceBloc(
-        getAttendanceUseCase: sl(),
-        scanQRCodeUseCase: sl(),
-      ));
-  sl.registerLazySingleton(() => ThemeBloc());
-
-  // Use cases
+    getAttendanceUseCase: sl(),
+    scanQRCodeUseCase: sl(),
+  ));
   sl.registerLazySingleton(() => GetAttendanceUseCase(sl()));
   sl.registerLazySingleton(() => ScanQRCodeUseCase(sl()));
-
-  // Repository
   sl.registerLazySingleton<AttendanceRepository>(
     () => AttendanceRepositoryImpl(remoteDataSource: sl()),
   );
-
-  // Data sources
   sl.registerLazySingleton<AttendanceRemoteDataSource>(
     () => AttendanceRemoteDataSourceImpl(sl<DioClient>().dio),
   );
+
+  // Features - Payroll
+  sl.registerFactory(() => PaySlipBloc(getPaySlipsUseCase: sl()));
+  sl.registerLazySingleton(() => GetPaySlipsUseCase(sl()));
+  sl.registerLazySingleton<PaySlipRepository>(
+    () => PaySlipRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<PaySlipRemoteDataSource>(
+    () => PaySlipRemoteDataSourceImpl(sl<DioClient>().dio),
+  );
+
+  sl.registerLazySingleton(() => ThemeBloc());
 
   // Core
   sl.registerLazySingleton(() => DioClient(sl()));
