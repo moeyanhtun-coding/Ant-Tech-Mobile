@@ -5,6 +5,7 @@ import 'core/utils/globals.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/home/presentation/bloc/home_bloc.dart';
 import 'features/attendance/presentation/bloc/attendance_bloc.dart';
+import 'features/payroll/presentation/bloc/pay_slip_bloc.dart';
 import 'features/settings/presentation/bloc/theme_bloc.dart';
 import 'features/settings/presentation/bloc/theme_event.dart';
 import 'features/settings/presentation/bloc/theme_state.dart';
@@ -32,6 +33,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<AttendanceBloc>(
           create: (_) => di.sl<AttendanceBloc>(),
+        ),
+        BlocProvider<PaySlipBloc>(
+          create: (_) => di.sl<PaySlipBloc>(),
         ),
         BlocProvider<ThemeBloc>(
           create: (_) => di.sl<ThemeBloc>()..add(GetInitialTheme()),
