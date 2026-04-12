@@ -1,3 +1,8 @@
+import 'package:at_hr_mobile/features/attendance/data/datasources/attendance_remote_data_source.dart';
+import 'package:at_hr_mobile/features/attendance/data/repositories/attendance_repository_impl.dart';
+import 'package:at_hr_mobile/features/attendance/domain/repositories/attendance_repository.dart';
+import 'package:at_hr_mobile/features/attendance/domain/usecases/get_attendance_usecase.dart';
+import 'package:at_hr_mobile/features/attendance/domain/usecases/scan_qr_code_usecase.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'core/network/dio_client.dart';
@@ -45,10 +50,9 @@ Future<void> init() async {
 
   // Features - Home
   // Bloc
-  sl.registerFactory(() => HomeBloc(
-        getProfileUseCase: sl(),
-        attendanceRepository: sl(),
-      ));
+  sl.registerFactory(
+    () => HomeBloc(getProfileUseCase: sl(), attendanceRepository: sl()),
+  );
 
   // Use cases
   sl.registerLazySingleton(() => GetProfileUseCase(sl()));
@@ -64,10 +68,9 @@ Future<void> init() async {
   );
 
   // Features - Attendance
-  sl.registerFactory(() => AttendanceBloc(
-    getAttendanceUseCase: sl(),
-    scanQRCodeUseCase: sl(),
-  ));
+  sl.registerFactory(
+    () => AttendanceBloc(getAttendanceUseCase: sl(), scanQRCodeUseCase: sl()),
+  );
   sl.registerLazySingleton(() => GetAttendanceUseCase(sl()));
   sl.registerLazySingleton(() => ScanQRCodeUseCase(sl()));
   sl.registerLazySingleton<AttendanceRepository>(
@@ -91,7 +94,7 @@ Future<void> init() async {
 
   // Core
   sl.registerLazySingleton(() => DioClient(sl()));
-  
+
   // External
   sl.registerLazySingleton(() => Dio());
 }
