@@ -21,6 +21,9 @@ class PaySlipEntity extends Equatable {
   final String? paySlipPath;
   final String? currencySymbol;
 
+  final List<PaySlipEarningEntity> earnings;
+  final List<PaySlipDeductionEntity> deductions;
+
   const PaySlipEntity({
     required this.paySlipGUID,
     required this.employeeGUID,
@@ -41,6 +44,8 @@ class PaySlipEntity extends Equatable {
     required this.leaveDays,
     this.paySlipPath,
     this.currencySymbol,
+    this.earnings = const [],
+    this.deductions = const [],
   });
 
   @override
@@ -64,5 +69,41 @@ class PaySlipEntity extends Equatable {
         leaveDays,
         paySlipPath,
         currencySymbol,
+        earnings,
+        deductions,
       ];
+}
+
+class PaySlipEarningEntity extends Equatable {
+  final String guid;
+  final String earningName;
+  final double amount;
+  final double percentage;
+
+  const PaySlipEarningEntity({
+    required this.guid,
+    required this.earningName,
+    required this.amount,
+    required this.percentage,
+  });
+
+  @override
+  List<Object?> get props => [guid, earningName, amount, percentage];
+}
+
+class PaySlipDeductionEntity extends Equatable {
+  final String guid;
+  final String deductionName;
+  final double amount;
+  final double percentage;
+
+  const PaySlipDeductionEntity({
+    required this.guid,
+    required this.deductionName,
+    required this.amount,
+    required this.percentage,
+  });
+
+  @override
+  List<Object?> get props => [guid, deductionName, amount, percentage];
 }
