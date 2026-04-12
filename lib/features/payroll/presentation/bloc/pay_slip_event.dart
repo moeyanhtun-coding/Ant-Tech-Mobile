@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import '../../domain/entities/pay_slip_entity.dart';
 
 abstract class PaySlipEvent extends Equatable {
   const PaySlipEvent();
