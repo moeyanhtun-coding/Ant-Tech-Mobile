@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/pay_slip_entity.dart';
+import '../pages/pay_slip_detail_page.dart';
 
 class PaySlipCard extends StatelessWidget {
   final PaySlipEntity paySlip;
@@ -17,132 +18,111 @@ class PaySlipCard extends StatelessWidget {
       decimalDigits: 0,
     );
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: isDark
-            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)
-            : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          if (!isDark)
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-        ],
-        border: isDark
-            ? Border.all(color: Colors.white.withValues(alpha: 0.05))
-            : null,
-      ),
-      child: Column(
-        children: [
-          // Header Section
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: colorScheme.primary.withValues(alpha: 0.05),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PaySlipDetailPage(paySlip: paySlip),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: isDark
+              ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)
+              : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            if (!isDark)
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+          ],
+          border: isDark
+              ? Border.all(color: Colors.white.withValues(alpha: 0.05))
+              : null,
+        ),
+        child: Column(
+          children: [
+            // Header Section
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colorScheme.primary.withValues(alpha: 0.05),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        paySlip.salaryMonth,
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.primary,
+                        ),
+                      ),
+                      Text(
+                        'Pay Period: ${paySlip.payPeriod}',
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Icon(Icons.chevron_right_rounded, color: colorScheme.primary),
+                ],
               ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      paySlip.salaryMonth,
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.primary,
-                      ),
-                    ),
-                    Text(
-                      'Pay Period: ${paySlip.payPeriod}',
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ],
-                ),
-                _buildStatusBadge('Paid', Colors.green),
-              ],
-            ),
-          ),
 
-          // Details Section
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                _buildDetailRow(
-                  'Basic Salary',
-                  currencyFormat.format(paySlip.basicSalary),
-                  isBold: false,
-                ),
-                _buildDetailRow(
-                  'Allowances',
-                  '+ ${currencyFormat.format(paySlip.totalAllowances)}',
-                  valueColor: Colors.green,
-                ),
-                _buildDetailRow(
-                  'Deductions',
-                  '- ${currencyFormat.format(paySlip.totalDeductions)}',
-                  valueColor: Colors.red,
-                ),
-                const Divider(height: 24),
-                _buildDetailRow(
-                  'Net Salary',
-                  currencyFormat.format(paySlip.netSalary),
-                  isBold: true,
-                  fontSize: 18,
-                  valueColor: colorScheme.primary,
-                ),
-              ],
-            ),
-          ),
-
-          // Stats Section
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
+            // Details Section
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  _buildDetailRow(
+                    'Basic Salary',
+                    currencyFormat.format(paySlip.basicSalary),
+                    isBold: false,
+                    isDark: isDark,
+                  ),
+                  _buildDetailRow(
+                    'Allowances',
+                    '+ ${currencyFormat.format(paySlip.totalAllowances)}',
+                    valueColor: Colors.green,
+                    isDark: isDark,
+                  ),
+                  _buildDetailRow(
+                    'Deductions',
+                    '- ${currencyFormat.format(paySlip.totalDeductions)}',
+                    valueColor: Colors.red,
+                    isDark: isDark,
+                  ),
+                  const Divider(height: 24),
+                  _buildDetailRow(
+                    'Net Salary',
+                    currencyFormat.format(paySlip.netSalary),
+                    isBold: true,
+                    fontSize: 18,
+                    valueColor: colorScheme.primary,
+                    isDark: isDark,
+                  ),
+                ],
               ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildStatItem(
-                  'Present',
-                  paySlip.presentDays.toString(),
-                  Icons.check_circle_outline,
-                  Colors.green,
-                ),
-                _buildStatItem(
-                  'Absent',
-                  paySlip.absentDays.toString(),
-                  Icons.cancel_outlined,
-                  Colors.red,
-                ),
-                _buildStatItem(
-                  'Leave',
-                  paySlip.leaveDays.toString(),
-                  Icons.event_note,
-                  Colors.blue,
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -153,6 +133,7 @@ class PaySlipCard extends StatelessWidget {
     bool isBold = false,
     double fontSize = 14,
     Color? valueColor,
+    required bool isDark,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -164,7 +145,7 @@ class PaySlipCard extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontSize: fontSize,
               fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
-              color: Colors.grey[600],
+              color: isDark ? Colors.white70 : Colors.grey[600],
             ),
           ),
           Text(
@@ -172,7 +153,7 @@ class PaySlipCard extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontSize: fontSize,
               fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
-              color: valueColor ?? (isBold ? Colors.black87 : Colors.black54),
+              color: valueColor ?? (isBold ? (isDark ? Colors.white : Colors.black87) : (isDark ? Colors.white60 : Colors.black54)),
             ),
           ),
         ],
