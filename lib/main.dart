@@ -25,18 +25,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<AuthBloc>(
-          create: (_) => di.sl<AuthBloc>(),
-        ),
-        BlocProvider<HomeBloc>(
-          create: (_) => di.sl<HomeBloc>(),
-        ),
-        BlocProvider<AttendanceBloc>(
-          create: (_) => di.sl<AttendanceBloc>(),
-        ),
-        BlocProvider<PaySlipBloc>(
-          create: (_) => di.sl<PaySlipBloc>(),
-        ),
+        BlocProvider<AuthBloc>(create: (_) => di.sl<AuthBloc>()),
+        BlocProvider<HomeBloc>(create: (_) => di.sl<HomeBloc>()),
+        BlocProvider<AttendanceBloc>(create: (_) => di.sl<AttendanceBloc>()),
+        BlocProvider<PaySlipBloc>(create: (_) => di.sl<PaySlipBloc>()),
         BlocProvider<ThemeBloc>(
           create: (_) => di.sl<ThemeBloc>()..add(GetInitialTheme()),
         ),
