@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../attendance/presentation/bloc/attendance_bloc.dart';
 import '../../../attendance/presentation/bloc/attendance_state.dart';
 import '../../../attendance/presentation/pages/attendance_page.dart';
+import '../../../payroll/presentation/pages/pay_slip_list_page.dart';
 import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';
 import '../bloc/home_state.dart';
@@ -114,6 +115,16 @@ class _HomePageState extends State<HomePage> {
                               Icons.payments_rounded,
                               'Payroll',
                               Colors.green,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => PaySlipListPage(
+                                      employeeGUID: profile.employeeGUID,
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                             _buildActionCard(
                               Icons.description_rounded,
