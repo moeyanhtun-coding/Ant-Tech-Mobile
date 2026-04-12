@@ -21,6 +21,8 @@ class PaySlipModel extends PaySlipEntity {
     required super.leaveDays,
     super.paySlipPath,
     super.currencySymbol,
+    super.earnings,
+    super.deductions,
   });
 
   factory PaySlipModel.fromJson(Map<String, dynamic> json) {
@@ -44,9 +46,18 @@ class PaySlipModel extends PaySlipEntity {
       leaveDays: json['leaveDays'] ?? 0,
       paySlipPath: json['paySlipPath'],
       currencySymbol: json['currencySymbol'],
+      earnings: (json['earningList'] as List<dynamic>?)
+              ?.map((e) => PaySlipEarningModel.fromJson(e))
+              .toList() ??
+          const [],
+      deductions: (json['deductionList'] as List<dynamic>?)
+              ?.map((e) => PaySlipDeductionModel.fromJson(e))
+              .toList() ??
+          const [],
     );
   }
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       'paySlipGUID': paySlipGUID,
@@ -68,6 +79,64 @@ class PaySlipModel extends PaySlipEntity {
       'leaveDays': leaveDays,
       'paySlipPath': paySlipPath,
       'currencySymbol': currencySymbol,
+      'earningList':
+          earnings.map((e) => (e as PaySlipEarningModel).toJson()).toList(),
+      'deductionList':
+          deductions.map((e) => (e as PaySlipDeductionModel).toJson()).toList(),
+    };
+  }
+}
+
+class PaySlipEarningModel extends PaySlipEarningEntity {
+  const PaySlipEarningModel({
+    required super.guid,
+    required super.earningName,
+    required super.amount,
+    required super.percentage,
+  });
+
+  factory PaySlipEarningModel.fromJson(Map<String, dynamic> json) {
+    return PaySlipEarningModel(
+      guid: json['guid'] ?? '',
+      earningName: json['earningName'] ?? '',
+      amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
+      percentage: (json['percentage'] as num?)?.toDouble() ?? 0.0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'guid': guid,
+      'earningName': earningName,
+      'amount': amount,
+      'percentage': percentage,
+    };
+  }
+}
+
+class PaySlipDeductionModel extends PaySlipDeductionEntity {
+  const PaySlipDeductionModel({
+    required super.guid,
+    required super.deductionName,
+    required super.amount,
+    required super.percentage,
+  });
+
+  factory PaySlipDeductionModel.fromJson(Map<String, dynamic> json) {
+    return PaySlipDeductionModel(
+      guid: json['guid'] ?? '',
+      deductionName: json['deductionName'] ?? '',
+      amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
+      percentage: (json['percentage'] as num?)?.toDouble() ?? 0.0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'guid': guid,
+      'deductionName': deductionName,
+      'amount': amount,
+      'percentage': percentage,
     };
   }
 }
