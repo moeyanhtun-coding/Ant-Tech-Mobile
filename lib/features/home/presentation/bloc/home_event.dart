@@ -21,3 +21,12 @@ class GetAttendanceSummaryRequested extends HomeEvent {
   @override
   List<Object?> get props => [employeeGUID, month];
 }
+
+class GetTodayDutyAssignmentRequested extends HomeEvent {
+  final String employeeGUID;
+
+  const GetTodayDutyAssignmentRequested({required this.employeeGUID});
+
+  @override
+  List<Object?> get props => [employeeGUID];
+}
