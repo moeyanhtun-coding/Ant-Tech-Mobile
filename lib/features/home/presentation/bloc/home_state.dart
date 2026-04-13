@@ -1,3 +1,4 @@
+import 'package:at_hr_mobile/features/duty_roster/domain/entities/duty_roster_assignment_entity.dart';
 import 'package:equatable/equatable.dart';
 import '../../domain/entities/profile_entity.dart';
 
@@ -19,7 +20,13 @@ class AttendanceSummary extends Equatable {
   int get total => present + late + earlyLeft + lateAndEarlyLeft;
 
   @override
-  List<Object?> get props => [present, late, earlyLeft, lateAndEarlyLeft, month];
+  List<Object?> get props => [
+    present,
+    late,
+    earlyLeft,
+    lateAndEarlyLeft,
+    month,
+  ];
 }
 
 abstract class HomeState extends Equatable {
@@ -36,28 +43,42 @@ class HomeLoading extends HomeState {}
 class HomeLoaded extends HomeState {
   final ProfileEntity profile;
   final AttendanceSummary? attendanceSummary;
+  final DutyRosterAssignmentEntity? todayAssignment;
   final bool isSummaryLoading;
+  final bool isDutyLoading;
 
   const HomeLoaded({
     required this.profile,
     this.attendanceSummary,
+    this.todayAssignment,
     this.isSummaryLoading = false,
+    this.isDutyLoading = false,
   });
 
   HomeLoaded copyWith({
     ProfileEntity? profile,
     AttendanceSummary? attendanceSummary,
+    DutyRosterAssignmentEntity? todayAssignment,
     bool? isSummaryLoading,
+    bool? isDutyLoading,
   }) {
     return HomeLoaded(
       profile: profile ?? this.profile,
       attendanceSummary: attendanceSummary ?? this.attendanceSummary,
+      todayAssignment: todayAssignment ?? this.todayAssignment,
       isSummaryLoading: isSummaryLoading ?? this.isSummaryLoading,
+      isDutyLoading: isDutyLoading ?? this.isDutyLoading,
     );
   }
 
   @override
-  List<Object?> get props => [profile, attendanceSummary, isSummaryLoading];
+  List<Object?> get props => [
+    profile,
+    attendanceSummary,
+    todayAssignment,
+    isSummaryLoading,
+    isDutyLoading,
+  ];
 }
 
 class HomeFailure extends HomeState {
