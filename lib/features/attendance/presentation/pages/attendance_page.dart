@@ -36,6 +36,14 @@ class _AttendancePageState extends State<AttendancePage> {
     );
   }
 
+  Future<void> _onRefresh() async {
+    _fetchAttendance();
+    // Wait for the next state that is not loading
+    await context.read<AttendanceBloc>().stream.firstWhere(
+      (state) => state is AttendanceLoaded || state is AttendanceFailure,
+    );
+  }
+
   Future<void> _selectMonth(BuildContext context) async {
     final DateTime? picked = await showMonthPicker(
       context: context,
@@ -90,12 +98,16 @@ class _AttendancePageState extends State<AttendancePage> {
                     if (state.records.isEmpty) {
                       return _buildEmptyState();
                     }
-                    return ListView.builder(
-                      padding: const EdgeInsets.all(20),
-                      itemCount: state.records.length,
-                      itemBuilder: (context, index) {
-                        return AttendanceCard(record: state.records[index]);
-                      },
+                    return RefreshIndicator(
+                      onRefresh: () async => _onRefresh(),
+                      child: ListView.builder(
+                        padding: const EdgeInsets.all(20),
+                        itemCount: state.records.length,
+
+                        itemBuilder: (context, index) {
+                          return AttendanceCard(record: state.records[index]);
+                        },
+                      ),
                     );
                   } else if (state is AttendanceFailure) {
                     return _buildErrorState(state.message);
@@ -115,54 +127,30 @@ class _AttendancePageState extends State<AttendancePage> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
-        ),
+        color: colorScheme.primary.withValues(alpha: 0.1),
         border: Border(
-          bottom: BorderSide(
-            color: colorScheme.onSurface.withValues(alpha: 0.1),
-          ),
+          bottom: BorderSide(color: colorScheme.primary.withValues(alpha: 0.1)),
         ),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Selected Month',
-                style: GoogleFonts.poppins(
-                  fontSize: 12,
-                  color: colorScheme.onSurface.withValues(alpha: 0.5),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Text(
-                DateFormat('MMMM yyyy').format(_selectedMonth),
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.onSurface,
-                ),
-              ),
-            ],
+          Icon(Icons.filter_list_rounded, size: 18, color: colorScheme.primary),
+          const SizedBox(width: 8),
+          Text(
+            'Showing records for: ',
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              color: colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
           ),
-          ElevatedButton.icon(
-            onPressed: () => _selectMonth(context),
-            icon: const Icon(Icons.edit_calendar_rounded, size: 18),
-            label: const Text('Change'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
-              foregroundColor: colorScheme.primary,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+          Text(
+            DateFormat('MMMM yyyy').format(_selectedMonth),
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.primary,
             ),
           ),
         ],
@@ -171,41 +159,80 @@ class _AttendancePageState extends State<AttendancePage> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.event_busy_rounded, size: 80, color: Colors.grey[300]),
-          const SizedBox(height: 16),
-          Text(
-            'No records found for this month',
-            style: GoogleFonts.poppins(color: Colors.grey[600], fontSize: 16),
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.event_busy_rounded,
+                    size: 64,
+                    color: Colors.grey.withValues(alpha: 0.5),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'No Records Found',
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'There are no attendance records for this period.',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey.withValues(alpha: 0.7),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildErrorState(String message) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 60, color: Colors.red),
-            const SizedBox(height: 16),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.poppins(color: Colors.grey[800]),
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 60, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text(
+                    message,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(color: Colors.grey[800]),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: _fetchAttendance,
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _fetchAttendance,
-              child: const Text('Retry'),
-            ),
-          ],
+          ),
         ),
       ),
     );
