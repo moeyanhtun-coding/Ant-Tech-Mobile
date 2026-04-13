@@ -6,6 +6,7 @@ import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/home/presentation/bloc/home_bloc.dart';
 import 'features/attendance/presentation/bloc/attendance_bloc.dart';
 import 'features/payroll/presentation/bloc/pay_slip_bloc.dart';
+import 'features/duty_roster/presentation/bloc/duty_roster_bloc.dart';
 import 'features/settings/presentation/bloc/theme_bloc.dart';
 import 'features/settings/presentation/bloc/theme_event.dart';
 import 'features/settings/presentation/bloc/theme_state.dart';
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<HomeBloc>(create: (_) => di.sl<HomeBloc>()),
         BlocProvider<AttendanceBloc>(create: (_) => di.sl<AttendanceBloc>()),
         BlocProvider<PaySlipBloc>(create: (_) => di.sl<PaySlipBloc>()),
+        BlocProvider<DutyRosterBloc>(create: (_) => di.sl<DutyRosterBloc>()),
         BlocProvider<ThemeBloc>(
           create: (_) => di.sl<ThemeBloc>()..add(GetInitialTheme()),
         ),
