@@ -6,6 +6,7 @@ import '../../../attendance/presentation/bloc/attendance_bloc.dart';
 import '../../../attendance/presentation/bloc/attendance_state.dart';
 import '../../../attendance/presentation/pages/attendance_page.dart';
 import '../../../payroll/presentation/pages/pay_slip_list_page.dart';
+import '../../../duty_roster/presentation/pages/duty_roster_page.dart';
 import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';
 import '../bloc/home_state.dart';
@@ -120,6 +121,21 @@ class _HomePageState extends State<HomePage> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (_) => PaySlipListPage(
+                                      employeeGUID: profile.employeeGUID,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                            _buildActionCard(
+                              Icons.event_note_rounded,
+                              'Duty Roster',
+                              Colors.redAccent,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => DutyRosterPage(
                                       employeeGUID: profile.employeeGUID,
                                     ),
                                   ),
