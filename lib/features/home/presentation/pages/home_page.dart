@@ -7,6 +7,7 @@ import '../../../attendance/presentation/bloc/attendance_state.dart';
 import '../../../attendance/presentation/pages/attendance_page.dart';
 import '../../../payroll/presentation/pages/pay_slip_list_page.dart';
 import '../../../duty_roster/presentation/pages/duty_roster_page.dart';
+import '../../../duty_roster/presentation/widgets/duty_assignment_card.dart';
 import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';
 import '../bloc/home_state.dart';
@@ -28,6 +29,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDark = colorScheme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -47,137 +49,164 @@ class _HomePageState extends State<HomePage> {
             final homeState = context.read<HomeBloc>().state;
             if (homeState is HomeLoaded) {
               final currentMonth = DateFormat('yyyy-MM').format(DateTime.now());
-              context.read<HomeBloc>().add(GetAttendanceSummaryRequested(
-                    employeeGUID: homeState.profile.employeeGUID,
-                    month: currentMonth,
-                  ));
+              context.read<HomeBloc>().add(
+                GetAttendanceSummaryRequested(
+                  employeeGUID: homeState.profile.employeeGUID,
+                  month: currentMonth,
+                ),
+              );
             }
           }
         },
         child: BlocBuilder<HomeBloc, HomeState>(
-        builder: (context, state) {
-          if (state is HomeLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is HomeLoaded) {
-            final profile = state.profile;
-            return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildHeader(profile),
-                        const SizedBox(height: 20),
-                        _buildAttendanceSummaryCard(
-                          state.attendanceSummary,
-                          state.isSummaryLoading,
-                        ),
-                        const SizedBox(height: 20),
-                        Text(
-                          'Quick Actions',
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.onSurface,
+          builder: (context, state) {
+            if (state is HomeLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is HomeLoaded) {
+              final profile = state.profile;
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildHeader(profile),
+                          const SizedBox(height: 20),
+                          _buildAttendanceSummaryCard(
+                            state.attendanceSummary,
+                            state.isSummaryLoading,
                           ),
-                        ),
-                        const SizedBox(height: 20),
-                        GridView.count(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 15,
-                          mainAxisSpacing: 15,
-                          children: [
-                            _buildActionCard(
-                              Icons.calendar_today_rounded,
-                              'Attendance',
-                              Colors.blue,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => AttendancePage(
-                                      employeeGUID: profile.employeeGUID,
-                                    ),
-                                  ),
-                                );
-                              },
+
+                          if (state.isDutyLoading ||
+                              state.todayAssignment != null) ...[
+                            const SizedBox(height: 25),
+                            Text(
+                              'Today\'s Schedule',
+                              style: GoogleFonts.poppins(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.onSurface,
+                              ),
                             ),
-                            _buildActionCard(
-                              Icons.beach_access_rounded,
-                              'Leave',
-                              Colors.orange,
-                            ),
-                            _buildActionCard(
-                              Icons.payments_rounded,
-                              'Payroll',
-                              Colors.green,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => PaySlipListPage(
-                                      employeeGUID: profile.employeeGUID,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                            _buildActionCard(
-                              Icons.event_note_rounded,
-                              'Duty Roster',
-                              Colors.redAccent,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => DutyRosterPage(
-                                      employeeGUID: profile.employeeGUID,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                            _buildActionCard(
-                              Icons.description_rounded,
-                              'Documents',
-                              Colors.purple,
-                            ),
+                            const SizedBox(height: 15),
+                            if (state.isDutyLoading)
+                              _buildDutyShimmer(isDark)
+                            else if (state.todayAssignment != null)
+                              DutyAssignmentCard(
+                                assignment: state.todayAssignment!,
+                              ),
                           ],
-                        ),
-                        SizedBox(height: 70),
-                      ],
+
+                          const SizedBox(height: 25),
+                          Text(
+                            'Quick Actions',
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          GridView.count(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 15,
+                            mainAxisSpacing: 15,
+                            children: [
+                              _buildActionCard(
+                                Icons.calendar_today_rounded,
+                                'Attendance',
+                                Colors.blue,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => AttendancePage(
+                                        employeeGUID: profile.employeeGUID,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                              _buildActionCard(
+                                Icons.beach_access_rounded,
+                                'Leave',
+                                Colors.orange,
+                              ),
+                              _buildActionCard(
+                                Icons.payments_rounded,
+                                'Payroll',
+                                Colors.green,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => PaySlipListPage(
+                                        employeeGUID: profile.employeeGUID,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                              _buildActionCard(
+                                Icons.event_note_rounded,
+                                'Duty Roster',
+                                Colors.redAccent,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => DutyRosterPage(
+                                        employeeGUID: profile.employeeGUID,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                              _buildActionCard(
+                                Icons.description_rounded,
+                                'Documents',
+                                Colors.purple,
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 70),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            );
-          } else if (state is HomeFailure) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 60, color: Colors.red),
-                  const SizedBox(height: 16),
-                  Text(state.message, style: GoogleFonts.poppins()),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () =>
-                        context.read<HomeBloc>().add(GetProfileRequested()),
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            );
-          }
-          return const SizedBox.shrink();
-        },
+                  ],
+                ),
+              );
+            } else if (state is HomeFailure) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: 60,
+                      color: Colors.red,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(state.message, style: GoogleFonts.poppins()),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () =>
+                          context.read<HomeBloc>().add(GetProfileRequested()),
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          },
+        ),
       ),
-    ),
     );
   }
 
@@ -409,6 +438,13 @@ class _HomePageState extends State<HomePage> {
         ),
       ],
     );
+  }
+
+  Widget _buildDutyShimmer(bool isDark) {
+    final shimmerColor = isDark
+        ? Colors.white.withValues(alpha: 0.06)
+        : Colors.grey.withValues(alpha: 0.15);
+    return _shimmerBox(shimmerColor, height: 120);
   }
 
   Widget _shimmerBox(Color color, {double height = 64}) {
