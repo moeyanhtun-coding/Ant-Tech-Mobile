@@ -1,4 +1,9 @@
 import 'package:at_hr_mobile/features/attendance/data/datasources/attendance_remote_data_source.dart';
+import 'package:at_hr_mobile/features/duty_roster/data/datasources/duty_roster_remote_data_source.dart';
+import 'package:at_hr_mobile/features/duty_roster/data/repositories/duty_roster_repository_impl.dart';
+import 'package:at_hr_mobile/features/duty_roster/domain/repositories/duty_roster_repository.dart';
+import 'package:at_hr_mobile/features/duty_roster/domain/usecases/get_duty_roster_assignments_usecase.dart';
+import 'package:at_hr_mobile/features/duty_roster/presentation/bloc/duty_roster_bloc.dart';
 import 'package:at_hr_mobile/features/attendance/data/repositories/attendance_repository_impl.dart';
 import 'package:at_hr_mobile/features/attendance/domain/repositories/attendance_repository.dart';
 import 'package:at_hr_mobile/features/attendance/domain/usecases/get_attendance_usecase.dart';
@@ -88,6 +93,16 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<PaySlipRemoteDataSource>(
     () => PaySlipRemoteDataSourceImpl(sl<DioClient>().dio),
+  );
+
+  // Features - Duty Roster
+  sl.registerFactory(() => DutyRosterBloc(getAssignmentsUseCase: sl()));
+  sl.registerLazySingleton(() => GetDutyRosterAssignmentsUseCase(sl()));
+  sl.registerLazySingleton<DutyRosterRepository>(
+    () => DutyRosterRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<DutyRosterRemoteDataSource>(
+    () => DutyRosterRemoteDataSourceImpl(sl<DioClient>().dio),
   );
 
   sl.registerLazySingleton(() => ThemeBloc());
