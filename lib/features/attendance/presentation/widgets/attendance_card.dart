@@ -19,11 +19,11 @@ class AttendanceCard extends StatelessWidget {
         color: isDark
             ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)
             : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           if (!isDark)
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -32,11 +32,19 @@ class AttendanceCard extends StatelessWidget {
             ? Border.all(color: Colors.white.withValues(alpha: 0.05))
             : null,
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Row(
+      child: Column(
+        children: [
+          // Header Section
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: colorScheme.primary.withValues(alpha: 0.05),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
@@ -47,7 +55,7 @@ class AttendanceCard extends StatelessWidget {
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
-                        color: colorScheme.onSurface,
+                        color: colorScheme.primary,
                       ),
                     ),
                     if (record.shiftName != null)
@@ -55,7 +63,7 @@ class AttendanceCard extends StatelessWidget {
                         record.shiftName!,
                         style: GoogleFonts.poppins(
                           fontSize: 12,
-                          color: colorScheme.onSurface.withValues(alpha: 0.5),
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                       ),
                   ],
@@ -63,37 +71,45 @@ class AttendanceCard extends StatelessWidget {
                 _buildStatusBadge(record.attendanceStatus),
               ],
             ),
-            const Divider(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+          ),
+
+          // Details Section
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
               children: [
-                _buildTimeInfo(
-                  'Check In',
-                  _formatTime(record.checkInTime),
-                  Icons.login_rounded,
-                  Colors.green,
-                  colorScheme,
-                  hasLocation: record.checkInLatitude != null && record.checkInLongitude != null,
-                ),
-                _buildTimeInfo(
-                  'Check Out',
-                  _formatTime(record.checkOutTime),
-                  Icons.logout_rounded,
-                  Colors.orange,
-                  colorScheme,
-                  hasLocation: record.checkOutLatitude != null && record.checkOutLongitude != null,
-                ),
-                _buildTimeInfo(
-                  'Total',
-                  record.totalHours ?? '00:00',
-                  Icons.timer_outlined,
-                  Colors.blue,
-                  colorScheme,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildTimeInfo(
+                      'Check In',
+                      _formatTime(record.checkInTime),
+                      Icons.login_rounded,
+                      Colors.green,
+                      colorScheme,
+                      hasLocation: record.checkInLatitude != null && record.checkInLongitude != null,
+                    ),
+                    _buildTimeInfo(
+                      'Check Out',
+                      _formatTime(record.checkOutTime),
+                      Icons.logout_rounded,
+                      Colors.orange,
+                      colorScheme,
+                      hasLocation: record.checkOutLatitude != null && record.checkOutLongitude != null,
+                    ),
+                    _buildTimeInfo(
+                      'Total Hours',
+                      record.totalHours ?? '00:00',
+                      Icons.timer_outlined,
+                      Colors.blue,
+                      colorScheme,
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
