@@ -56,7 +56,11 @@ Future<void> init() async {
   // Features - Home
   // Bloc
   sl.registerFactory(
-    () => HomeBloc(getProfileUseCase: sl(), attendanceRepository: sl()),
+    () => HomeBloc(
+      getProfileUseCase: sl(),
+      attendanceRepository: sl(),
+      getDutyRosterAssignmentsUseCase: sl(),
+    ),
   );
 
   // Use cases
