@@ -40,4 +40,14 @@ class LocalStorage {
     await prefs.remove(keyToken);
     await prefs.remove(keyRefreshToken);
   }
+
+  static Future<void> saveCache(String key, String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(key, value);
+  }
+
+  static Future<String?> getCache(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(key);
+  }
 }
