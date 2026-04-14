@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/utils/local_storage.dart';
@@ -45,13 +46,28 @@ class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
+        await LocalStorage.saveCache('CACHE_ATTENDANCE_$month', jsonEncode(data));
         return data.map((json) => AttendanceModel.fromJson(json)).toList();
       } else {
         throw const ServerFailure('Failed to fetch attendance');
       }
     } on DioException catch (e) {
+      final cachedStr = await LocalStorage.getCache('CACHE_ATTENDANCE_$month');
+      if (cachedStr != null) {
+        try {
+          final List<dynamic> data = jsonDecode(cachedStr);
+          return data.map((json) => AttendanceModel.fromJson(json)).toList();
+        } catch (_) {}
+      }
       throw ServerFailure(e.message ?? 'Network error');
     } catch (e) {
+      final cachedStr = await LocalStorage.getCache('CACHE_ATTENDANCE_$month');
+      if (cachedStr != null) {
+        try {
+          final List<dynamic> data = jsonDecode(cachedStr);
+          return data.map((json) => AttendanceModel.fromJson(json)).toList();
+        } catch (_) {}
+      }
       throw ServerFailure(e.toString());
     }
   }
