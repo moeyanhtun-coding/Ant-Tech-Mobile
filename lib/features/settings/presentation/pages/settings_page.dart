@@ -76,6 +76,17 @@ class SettingsPage extends StatelessWidget {
             const SizedBox(height: 48),
             _buildSectionHeader('Login Actions', colorScheme),
             const SizedBox(height: 16),
+            const SizedBox(height: 16),
+            GestureDetector(
+              onTap: () => _onPasscodeTileTapped(context),
+              child: _buildSettingTile(
+                'Offline Passcode',
+                'Configure PIN',
+                Icons.pin_rounded,
+                colorScheme,
+              ),
+            ),
+            const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -94,9 +105,177 @@ class SettingsPage extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 110),
           ],
         ),
+      ),
+    );
+  }
+
+  void _onPasscodeTileTapped(BuildContext context) async {
+    final existingPasscode = await LocalStorage.getOfflinePasscode();
+    if (context.mounted) {
+      if (existingPasscode != null && existingPasscode.isNotEmpty) {
+        _showChangePasscodeDialog(context, existingPasscode);
+      } else {
+        _showSetPasscodeDialog(context);
+      }
+    }
+  }
+
+  void _showSetPasscodeDialog(BuildContext context) {
+    final TextEditingController pinController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Set Offline Passcode',
+          style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Enter a 4-digit PIN to access your offline dashboard.',
+              style: GoogleFonts.poppins(fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: pinController,
+              keyboardType: TextInputType.number,
+              maxLength: 4,
+              obscureText: true,
+              decoration: InputDecoration(
+                hintText: '----',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                counterText: '',
+              ),
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(fontSize: 24, letterSpacing: 16),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel', style: GoogleFonts.poppins()),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final pin = pinController.text.trim();
+              if (pin.length == 4) {
+                await LocalStorage.saveOfflinePasscode(pin);
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Offline passcode saved successfully.'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              }
+            },
+            child: Text(
+              'Save',
+              style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showChangePasscodeDialog(BuildContext context, String oldPasscode) {
+    final TextEditingController pinController = TextEditingController();
+    bool isOldVerified = false;
+    bool hasError = false;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text(
+              isOldVerified ? 'Set New Passcode' : 'Verify Old Passcode',
+              style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  isOldVerified
+                      ? 'Enter your new 4-digit PIN.'
+                      : 'Enter your current 4-digit PIN.',
+                  style: GoogleFonts.poppins(fontSize: 13),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: pinController,
+                  keyboardType: TextInputType.number,
+                  maxLength: 4,
+                  obscureText: true,
+                  onChanged: (_) {
+                    if (hasError) setState(() => hasError = false);
+                  },
+                  decoration: InputDecoration(
+                    hintText: '----',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    counterText: '',
+                    errorText: hasError ? 'Incorrect PIN' : null,
+                  ),
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(fontSize: 24, letterSpacing: 16),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cancel', style: GoogleFonts.poppins()),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  final pin = pinController.text.trim();
+                  if (pin.length == 4) {
+                    if (!isOldVerified) {
+                      if (pin == oldPasscode) {
+                        setState(() {
+                          isOldVerified = true;
+                          hasError = false;
+                          pinController.clear();
+                        });
+                      } else {
+                        setState(() {
+                          hasError = true;
+                        });
+                      }
+                    } else {
+                      await LocalStorage.saveOfflinePasscode(pin);
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Offline passcode updated successfully.'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      }
+                    }
+                  }
+                },
+                child: Text(
+                  isOldVerified ? 'Save' : 'Verify',
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
