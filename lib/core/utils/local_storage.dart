@@ -55,7 +55,6 @@ class LocalStorage {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(keyToken);
     await prefs.remove(keyRefreshToken);
-    await prefs.remove(keyOfflinePasscode);
   }
 
   static Future<void> saveCache(String key, String value) async {
