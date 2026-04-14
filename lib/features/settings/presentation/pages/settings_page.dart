@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../auth/presentation/pages/login_page.dart';
+import '../../../auth/presentation/pages/passcode_page.dart';
 import '../../../../core/utils/local_storage.dart';
+import '../../../../core/network/network_info.dart';
+import '../../../../injection_container.dart' as di;
 import '../bloc/theme_bloc.dart';
 import '../bloc/theme_event.dart';
 import '../bloc/theme_state.dart';
@@ -282,11 +285,21 @@ class SettingsPage extends StatelessWidget {
 
   void _onLogout(BuildContext context) async {
     await LocalStorage.clear();
+    final isConnected = await di.sl<NetworkInfo>().isConnected;
+    final passcode = await LocalStorage.getOfflinePasscode();
+
     if (context.mounted) {
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const LoginPage()),
-        (route) => false,
-      );
+      if (!isConnected && passcode != null && passcode.isNotEmpty) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const PasscodePage()),
+          (route) => false,
+        );
+      } else {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginPage()),
+          (route) => false,
+        );
+      }
     }
   }
 
