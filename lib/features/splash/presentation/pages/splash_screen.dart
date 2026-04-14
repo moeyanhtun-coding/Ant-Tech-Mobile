@@ -4,6 +4,10 @@ import 'package:at_hr_mobile/features/auth/presentation/pages/login_page.dart';
 import 'package:at_hr_mobile/features/main/presentation/pages/main_page.dart';
 import 'package:at_hr_mobile/core/utils/local_storage.dart';
 
+import 'package:at_hr_mobile/core/network/network_info.dart';
+import 'package:at_hr_mobile/features/auth/presentation/pages/passcode_page.dart';
+import 'package:at_hr_mobile/injection_container.dart' as di;
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -32,14 +36,23 @@ class _SplashScreenState extends State<SplashScreen>
 
   void _nextStep() async {
     final token = await LocalStorage.getToken();
+    final offlinePasscode = await LocalStorage.getOfflinePasscode();
+    final isConnected = await di.sl<NetworkInfo>().isConnected;
+
     await Future.delayed(const Duration(seconds: 3));
 
     if (mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => token != null ? const MainPage() : const LoginPage(),
-        ),
-      );
+      if (!isConnected && offlinePasscode != null) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const PasscodePage()),
+        );
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => token != null ? const MainPage() : const LoginPage(),
+          ),
+        );
+      }
     }
   }
 
