@@ -42,7 +42,7 @@ class _SplashScreenState extends State<SplashScreen>
     await Future.delayed(const Duration(seconds: 3));
 
     if (mounted) {
-      if (!isConnected && offlinePasscode != null) {
+      if (!isConnected && offlinePasscode != null && offlinePasscode.isNotEmpty) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const PasscodePage()),
         );
