@@ -1,3 +1,5 @@
+import 'package:at_hr_mobile/core/bloc/network/network_bloc.dart';
+import 'package:at_hr_mobile/core/bloc/network/network_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -28,10 +30,9 @@ class _PaySlipListPageState extends State<PaySlipListPage> {
 
   void _fetchPaySlips() {
     final monthStr = DateFormat('yyyy-MM').format(_selectedDate);
-    context.read<PaySlipBloc>().add(GetPaySlipsRequested(
-          employeeGUID: widget.employeeGUID,
-          month: monthStr,
-        ));
+    context.read<PaySlipBloc>().add(
+      GetPaySlipsRequested(employeeGUID: widget.employeeGUID, month: monthStr),
+    );
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -66,6 +67,32 @@ class _PaySlipListPageState extends State<PaySlipListPage> {
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
         actions: [
+          BlocBuilder<NetworkBloc, NetworkState>(
+            builder: (context, state) {
+              if (state is NetworkFailure) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8.0,
+                    vertical: 10.0,
+                  ),
+                  child: Chip(
+                    backgroundColor: Colors.red.withOpacity(0.1),
+                    side: const BorderSide(color: Colors.redAccent),
+                    label: Text(
+                      'Offline',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.redAccent,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.calendar_month_rounded),
             onPressed: () => _selectDate(context),
@@ -73,83 +100,100 @@ class _PaySlipListPageState extends State<PaySlipListPage> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Filter Summary
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            decoration: BoxDecoration(
-              color: colorScheme.primary.withValues(alpha: 0.1),
-              border: Border(
-                bottom: BorderSide(color: colorScheme.primary.withValues(alpha: 0.1)),
-              ),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.filter_list_rounded, size: 18, color: colorScheme.primary),
-                const SizedBox(width: 8),
-                Text(
-                  'Showing records for: ',
-                  style: GoogleFonts.poppins(
-                    fontSize: 13,
-                    color: colorScheme.onSurface.withValues(alpha: 0.7),
+      body: BlocListener<NetworkBloc, NetworkState>(
+        listener: (context, state) {
+          if (state is NetworkSuccess) {
+            _fetchPaySlips();
+          }
+        },
+        child: Column(
+          children: [
+            // Filter Summary
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              decoration: BoxDecoration(
+                color: colorScheme.primary.withValues(alpha: 0.1),
+                border: Border(
+                  bottom: BorderSide(
+                    color: colorScheme.primary.withValues(alpha: 0.1),
                   ),
                 ),
-                Text(
-                  DateFormat('MMMM yyyy').format(_selectedDate),
-                  style: GoogleFonts.poppins(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.filter_list_rounded,
+                    size: 18,
                     color: colorScheme.primary,
                   ),
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  Text(
+                    'Showing records for: ',
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      color: colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                  ),
+                  Text(
+                    DateFormat('MMMM yyyy').format(_selectedDate),
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
 
-          // List
-          Expanded(
-            child: BlocBuilder<PaySlipBloc, PaySlipState>(
-              builder: (context, state) {
-                if (state is PaySlipLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (state is PaySlipLoaded) {
-                  if (state.paySlips.isEmpty) {
-                    return _buildEmptyState(isDark);
+            // List
+            Expanded(
+              child: BlocBuilder<PaySlipBloc, PaySlipState>(
+                builder: (context, state) {
+                  if (state is PaySlipLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (state is PaySlipLoaded) {
+                    if (state.paySlips.isEmpty) {
+                      return _buildEmptyState(isDark);
+                    }
+                    return RefreshIndicator(
+                      onRefresh: () async => _fetchPaySlips(),
+                      child: ListView.builder(
+                        padding: const EdgeInsets.all(20),
+                        itemCount: state.paySlips.length,
+                        itemBuilder: (context, index) {
+                          return PaySlipCard(paySlip: state.paySlips[index]);
+                        },
+                      ),
+                    );
+                  } else if (state is PaySlipFailure) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            size: 60,
+                            color: Colors.red,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(state.message, style: GoogleFonts.poppins()),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: _fetchPaySlips,
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    );
                   }
-                  return RefreshIndicator(
-                    onRefresh: () async => _fetchPaySlips(),
-                    child: ListView.builder(
-                      padding: const EdgeInsets.all(20),
-                      itemCount: state.paySlips.length,
-                      itemBuilder: (context, index) {
-                        return PaySlipCard(paySlip: state.paySlips[index]);
-                      },
-                    ),
-                  );
-                } else if (state is PaySlipFailure) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.error_outline, size: 60, color: Colors.red),
-                        const SizedBox(height: 16),
-                        Text(state.message, style: GoogleFonts.poppins()),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: _fetchPaySlips,
-                          child: const Text('Retry'),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
+                  return const SizedBox.shrink();
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
