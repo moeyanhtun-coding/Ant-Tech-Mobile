@@ -11,6 +11,8 @@ import 'features/settings/presentation/bloc/theme_bloc.dart';
 import 'features/settings/presentation/bloc/theme_event.dart';
 import 'features/settings/presentation/bloc/theme_state.dart';
 import 'features/splash/presentation/pages/splash_screen.dart';
+import 'core/bloc/network/network_bloc.dart';
+import 'core/bloc/network/network_event.dart';
 import 'injection_container.dart' as di;
 
 void main() async {
@@ -26,6 +28,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider<NetworkBloc>(
+          create: (_) => di.sl<NetworkBloc>()..add(NetworkObserve()),
+        ),
         BlocProvider<AuthBloc>(create: (_) => di.sl<AuthBloc>()),
         BlocProvider<HomeBloc>(create: (_) => di.sl<HomeBloc>()),
         BlocProvider<AttendanceBloc>(create: (_) => di.sl<AttendanceBloc>()),
