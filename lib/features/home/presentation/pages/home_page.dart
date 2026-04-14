@@ -1,3 +1,5 @@
+import 'package:at_hr_mobile/core/bloc/network/network_bloc.dart';
+import 'package:at_hr_mobile/core/bloc/network/network_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -38,26 +40,64 @@ class _HomePageState extends State<HomePage> {
           'Dashboard',
           style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
         ),
+        actions: [
+          BlocBuilder<NetworkBloc, NetworkState>(
+            builder: (context, state) {
+              if (state is NetworkFailure) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: Chip(
+                    backgroundColor: Colors.red.withOpacity(0.1),
+                    side: const BorderSide(color: Colors.redAccent),
+                    label: Text(
+                      'Offline',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.redAccent,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        ],
         elevation: 0,
         centerTitle: false,
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
       ),
-      body: BlocListener<AttendanceBloc, AttendanceState>(
-        listener: (context, state) {
-          if (state is ScanQRCodeSuccess) {
-            final homeState = context.read<HomeBloc>().state;
-            if (homeState is HomeLoaded) {
-              final currentMonth = DateFormat('yyyy-MM').format(DateTime.now());
-              context.read<HomeBloc>().add(
-                GetAttendanceSummaryRequested(
-                  employeeGUID: homeState.profile.employeeGUID,
-                  month: currentMonth,
-                ),
-              );
-            }
-          }
-        },
+      body: MultiBlocListener(
+        listeners: [
+          BlocListener<AttendanceBloc, AttendanceState>(
+            listener: (context, state) {
+              if (state is ScanQRCodeSuccess) {
+                final homeState = context.read<HomeBloc>().state;
+                if (homeState is HomeLoaded) {
+                  final currentMonth = DateFormat(
+                    'yyyy-MM',
+                  ).format(DateTime.now());
+                  context.read<HomeBloc>().add(
+                    GetAttendanceSummaryRequested(
+                      employeeGUID: homeState.profile.employeeGUID,
+                      month: currentMonth,
+                    ),
+                  );
+                }
+              }
+            },
+          ),
+          BlocListener<NetworkBloc, NetworkState>(
+            listener: (context, state) {
+              if (state is NetworkSuccess) {
+                context.read<HomeBloc>().add(GetProfileRequested());
+              }
+            },
+          ),
+        ],
         child: BlocBuilder<HomeBloc, HomeState>(
           builder: (context, state) {
             if (state is HomeLoading) {
