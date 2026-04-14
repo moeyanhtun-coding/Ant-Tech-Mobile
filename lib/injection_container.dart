@@ -11,6 +11,9 @@ import 'package:at_hr_mobile/features/attendance/domain/usecases/scan_qr_code_us
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'core/network/dio_client.dart';
+import 'core/network/network_info.dart';
+import 'core/bloc/network/network_bloc.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'features/auth/data/datasources/auth_remote_data_source.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
@@ -112,8 +115,11 @@ Future<void> init() async {
   sl.registerLazySingleton(() => ThemeBloc());
 
   // Core
+  sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
+  sl.registerFactory(() => NetworkBloc(networkInfo: sl()));
   sl.registerLazySingleton(() => DioClient(sl()));
 
   // External
   sl.registerLazySingleton(() => Dio());
+  sl.registerLazySingleton(() => Connectivity());
 }
