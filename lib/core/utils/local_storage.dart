@@ -4,6 +4,7 @@ class LocalStorage {
   static const String keyToken = 'access_token';
   static const String keyRefreshToken = 'refresh_token';
   static const String keyThemeMode = 'theme_mode';
+  static const String keyOfflinePasscode = 'offline_passcode';
 
   static Future<void> saveThemeMode(String mode) async {
     final prefs = await SharedPreferences.getInstance();
@@ -13,6 +14,21 @@ class LocalStorage {
   static Future<String?> getThemeMode() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(keyThemeMode);
+  }
+
+  static Future<void> saveOfflinePasscode(String passcode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(keyOfflinePasscode, passcode);
+  }
+
+  static Future<String?> getOfflinePasscode() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(keyOfflinePasscode);
+  }
+
+  static Future<void> clearOfflinePasscode() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(keyOfflinePasscode);
   }
 
   static Future<void> saveToken(String token) async {
@@ -39,6 +55,7 @@ class LocalStorage {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(keyToken);
     await prefs.remove(keyRefreshToken);
+    await prefs.remove(keyOfflinePasscode);
   }
 
   static Future<void> saveCache(String key, String value) async {
