@@ -1,3 +1,6 @@
+import 'package:at_hr_mobile/core/bloc/network/network_bloc.dart';
+import 'package:at_hr_mobile/core/bloc/network/network_state.dart';
+import 'package:at_hr_mobile/core/error/failures.dart' hide NetworkFailure;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -40,6 +43,36 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          BlocBuilder<NetworkBloc, NetworkState>(
+            builder: (context, state) {
+              if (state is NetworkFailure) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Chip(
+                    backgroundColor: Colors.red.withOpacity(0.1),
+                    side: const BorderSide(color: Colors.redAccent),
+                    label: Text(
+                      'Offline',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.redAccent,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        ],
+      ),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
@@ -93,7 +126,9 @@ class _LoginPageState extends State<LoginPage> {
                       controller: _usernameController,
                       hintText: 'Username',
                       icon: Icons.person_outline,
-                      validator: (value) => value == null || value.isEmpty ? 'Please enter username' : null,
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Please enter username'
+                          : null,
                     ),
                     const SizedBox(height: 20),
                     _buildTextField(
@@ -102,15 +137,21 @@ class _LoginPageState extends State<LoginPage> {
                       icon: Icons.lock_outline,
                       isPassword: true,
                       isPasswordVisible: _isPasswordVisible,
-                      onPasswordToggle: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
-                      validator: (value) => value == null || value.isEmpty ? 'Please enter password' : null,
+                      onPasswordToggle: () => setState(
+                        () => _isPasswordVisible = !_isPasswordVisible,
+                      ),
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Please enter password'
+                          : null,
                     ),
                     const SizedBox(height: 30),
                     BlocBuilder<AuthBloc, AuthState>(
                       builder: (context, state) {
                         if (state is AuthLoading) {
                           return const Center(
-                            child: CircularProgressIndicator(color: Colors.white),
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                            ),
                           );
                         }
                         return ElevatedButton(
@@ -178,14 +219,19 @@ class _LoginPageState extends State<LoginPage> {
           suffixIcon: isPassword
               ? IconButton(
                   icon: Icon(
-                    (isPasswordVisible ?? false) ? Icons.visibility : Icons.visibility_off,
+                    (isPasswordVisible ?? false)
+                        ? Icons.visibility
+                        : Icons.visibility_off,
                     color: Colors.white70,
                   ),
                   onPressed: onPasswordToggle,
                 )
               : null,
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 15,
+          ),
         ),
       ),
     );
