@@ -11,9 +11,6 @@ import 'package:at_hr_mobile/features/attendance/domain/usecases/scan_qr_code_us
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'core/network/dio_client.dart';
-import 'core/network/network_info.dart';
-import 'core/bloc/network/network_bloc.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'features/auth/data/datasources/auth_remote_data_source.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
@@ -24,7 +21,6 @@ import 'features/home/data/repositories/home_repository_impl.dart';
 import 'features/home/domain/repositories/home_repository.dart';
 import 'features/home/domain/usecases/get_profile_usecase.dart';
 import 'features/home/presentation/bloc/home_bloc.dart';
-
 import 'features/attendance/presentation/bloc/attendance_bloc.dart';
 import 'features/payroll/data/datasources/pay_slip_remote_data_source.dart';
 import 'features/payroll/data/repositories/pay_slip_repository_impl.dart';
@@ -115,11 +111,8 @@ Future<void> init() async {
   sl.registerLazySingleton(() => ThemeBloc());
 
   // Core
-  sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
-  sl.registerFactory(() => NetworkBloc(networkInfo: sl()));
   sl.registerLazySingleton(() => DioClient(sl()));
 
   // External
   sl.registerLazySingleton(() => Dio());
-  sl.registerLazySingleton(() => Connectivity());
 }
