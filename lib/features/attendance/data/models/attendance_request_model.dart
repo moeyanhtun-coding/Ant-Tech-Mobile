@@ -30,7 +30,7 @@ class AttendanceRequestModel extends AttendanceRequest {
           : null,
       description: json['description'] ?? '',
       requestType: json['requestType'] ?? '',
-      attendanceStatus: json['status'] ?? '',
+      attendanceStatus: json['attendanceStatus'] ?? '',
       rejectDescription: json['rejectDescription'],
       employeeName: json['employeeName'],
       departmentName: json['departmentName'],
@@ -47,7 +47,7 @@ class AttendanceRequestModel extends AttendanceRequest {
       'longitude': longitude,
       'description': description,
       'requestType': requestType,
-      'status': attendanceStatus,
+      'attendanceStatus': attendanceStatus,
       'rejectDescription': rejectDescription,
     };
   }
