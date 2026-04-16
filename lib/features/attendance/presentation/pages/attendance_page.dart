@@ -7,6 +7,8 @@ import '../bloc/attendance_bloc.dart';
 import '../bloc/attendance_event.dart';
 import '../bloc/attendance_state.dart';
 import '../widgets/attendance_card.dart';
+import '../widgets/attendance_request_card.dart';
+import '../widgets/attendance_request_dialog.dart';
 
 class AttendancePage extends StatefulWidget {
   final String employeeGUID;
@@ -17,31 +19,51 @@ class AttendancePage extends StatefulWidget {
   State<AttendancePage> createState() => _AttendancePageState();
 }
 
-class _AttendancePageState extends State<AttendancePage> {
+class _AttendancePageState extends State<AttendancePage> with SingleTickerProviderStateMixin {
   DateTime _selectedMonth = DateTime.now();
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    _fetchAttendance();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(_handleTabSelection);
+    _fetchData();
   }
 
-  void _fetchAttendance() {
+  void _handleTabSelection() {
+    if (_tabController.indexIsChanging) {
+      _fetchData();
+    }
+  }
+
+  void _fetchData() {
     final monthStr = DateFormat('yyyy-MM').format(_selectedMonth);
-    context.read<AttendanceBloc>().add(
-      GetAttendanceRequested(
-        employeeGUID: widget.employeeGUID,
-        month: monthStr,
-      ),
-    );
+    if (_tabController.index == 0) {
+      context.read<AttendanceBloc>().add(
+            GetAttendanceRequested(
+              employeeGUID: widget.employeeGUID,
+              month: monthStr,
+            ),
+          );
+    } else {
+      context.read<AttendanceBloc>().add(
+            GetAttendanceRequestsRequested(
+              employeeGUID: widget.employeeGUID,
+              month: monthStr,
+            ),
+          );
+    }
   }
 
   Future<void> _onRefresh() async {
-    _fetchAttendance();
-    // Wait for the next state that is not loading
+    _fetchData();
     await context.read<AttendanceBloc>().stream.firstWhere(
-      (state) => state is AttendanceLoaded || state is AttendanceFailure,
-    );
+          (state) =>
+              state is AttendanceLoaded ||
+              state is AttendanceRequestsLoaded ||
+              state is AttendanceFailure,
+        );
   }
 
   Future<void> _selectMonth(BuildContext context) async {
@@ -55,8 +77,24 @@ class _AttendancePageState extends State<AttendancePage> {
       setState(() {
         _selectedMonth = picked;
       });
-      _fetchAttendance();
+      _fetchData();
     }
+  }
+
+  void _showRequestDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AttendanceRequestDialog(
+        employeeGUID: widget.employeeGUID,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _tabController.removeListener(_handleTabSelection);
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
@@ -67,7 +105,7 @@ class _AttendancePageState extends State<AttendancePage> {
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: Text(
-          'Attendance Record',
+          'Attendance',
           style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
         ),
         elevation: 0,
@@ -79,46 +117,118 @@ class _AttendancePageState extends State<AttendancePage> {
             onPressed: () => _selectMonth(context),
           ),
         ],
+        bottom: TabBar(
+          controller: _tabController,
+          labelStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 14),
+          unselectedLabelStyle: GoogleFonts.poppins(fontWeight: FontWeight.w500, fontSize: 14),
+          indicatorColor: colorScheme.primary,
+          labelColor: colorScheme.primary,
+          unselectedLabelColor: colorScheme.onSurface.withValues(alpha: 0.5),
+          tabs: const [
+            Tab(text: 'Records'),
+            Tab(text: 'Requests'),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _showRequestDialog,
+        backgroundColor: colorScheme.primary,
+        icon: const Icon(Icons.add_task_rounded, color: Colors.white),
+        label: Text(
+          'Request',
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: Colors.white),
+        ),
       ),
       body: BlocListener<AttendanceBloc, AttendanceState>(
         listener: (context, state) {
-          if (state is ScanQRCodeSuccess) {
-            _fetchAttendance();
+          if (state is ScanQRCodeSuccess || state is AttendanceRequestSubmitSuccess) {
+            if (state is AttendanceRequestSubmitSuccess) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+            _fetchData();
+          } else if (state is AttendanceRequestSubmitFailure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+              ),
+            );
           }
         },
         child: Column(
           children: [
             _buildMonthSelectorHeader(),
             Expanded(
-              child: BlocBuilder<AttendanceBloc, AttendanceState>(
-                builder: (context, state) {
-                  if (state is AttendanceLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (state is AttendanceLoaded) {
-                    if (state.records.isEmpty) {
-                      return _buildEmptyState();
-                    }
-                    return RefreshIndicator(
-                      onRefresh: () async => _onRefresh(),
-                      child: ListView.builder(
-                        padding: const EdgeInsets.all(20),
-                        itemCount: state.records.length,
-
-                        itemBuilder: (context, index) {
-                          return AttendanceCard(record: state.records[index]);
-                        },
-                      ),
-                    );
-                  } else if (state is AttendanceFailure) {
-                    return _buildErrorState(state.message);
-                  }
-                  return const SizedBox.shrink();
-                },
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildAttendanceList(),
+                  _buildRequestList(),
+                ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildAttendanceList() {
+    return BlocBuilder<AttendanceBloc, AttendanceState>(
+      builder: (context, state) {
+        if (state is AttendanceLoading) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (state is AttendanceLoaded) {
+          if (state.records.isEmpty) {
+            return _buildEmptyState('No Records Found', 'There are no attendance records for this period.');
+          }
+          return RefreshIndicator(
+            onRefresh: () async => _onRefresh(),
+            child: ListView.builder(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 80),
+              itemCount: state.records.length,
+              itemBuilder: (context, index) {
+                return AttendanceCard(record: state.records[index]);
+              },
+            ),
+          );
+        } else if (state is AttendanceFailure) {
+          return _buildErrorState(state.message);
+        }
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
+  Widget _buildRequestList() {
+    return BlocBuilder<AttendanceBloc, AttendanceState>(
+      builder: (context, state) {
+        if (state is AttendanceRequestsLoading) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (state is AttendanceRequestsLoaded) {
+          if (state.requests.isEmpty) {
+            return _buildEmptyState('No Requests Found', 'There are no attendance requests for this period.');
+          }
+          return RefreshIndicator(
+            onRefresh: () async => _onRefresh(),
+            child: ListView.builder(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 80),
+              itemCount: state.requests.length,
+              itemBuilder: (context, index) {
+                return AttendanceRequestCard(request: state.requests[index]);
+              },
+            ),
+          );
+        } else if (state is AttendanceFailure) {
+          return _buildErrorState(state.message);
+        }
+        return const SizedBox.shrink();
+      },
     );
   }
 
@@ -139,7 +249,7 @@ class _AttendancePageState extends State<AttendancePage> {
           Icon(Icons.filter_list_rounded, size: 18, color: colorScheme.primary),
           const SizedBox(width: 8),
           Text(
-            'Showing records for: ',
+            'Showing for: ',
             style: GoogleFonts.poppins(
               fontSize: 13,
               color: colorScheme.onSurface.withValues(alpha: 0.7),
@@ -158,7 +268,7 @@ class _AttendancePageState extends State<AttendancePage> {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(String title, String subtitle) {
     return LayoutBuilder(
       builder: (context, constraints) => SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -182,7 +292,7 @@ class _AttendancePageState extends State<AttendancePage> {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'No Records Found',
+                  title,
                   style: GoogleFonts.poppins(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -190,11 +300,15 @@ class _AttendancePageState extends State<AttendancePage> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  'There are no attendance records for this period.',
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    color: Colors.grey.withValues(alpha: 0.7),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  child: Text(
+                    subtitle,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey.withValues(alpha: 0.7),
+                    ),
                   ),
                 ),
               ],
@@ -226,7 +340,7 @@ class _AttendancePageState extends State<AttendancePage> {
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton(
-                    onPressed: _fetchAttendance,
+                    onPressed: _fetchData,
                     child: const Text('Retry'),
                   ),
                 ],
