@@ -28,10 +28,12 @@ class _AttendancePageState extends State<AttendancePage>
     with SingleTickerProviderStateMixin {
   DateTime _selectedMonth = DateTime.now();
   late TabController _tabController;
+  int _activeTabIndex = 0;
 
   @override
   void initState() {
     super.initState();
+    _activeTabIndex = widget.initialTabIndex;
     _tabController = TabController(
       length: 2,
       vsync: this,
@@ -42,7 +44,10 @@ class _AttendancePageState extends State<AttendancePage>
   }
 
   void _handleTabSelection() {
-    if (_tabController.indexIsChanging) {
+    if (_tabController.index != _activeTabIndex) {
+      setState(() {
+        _activeTabIndex = _tabController.index;
+      });
       _fetchData();
     }
   }
