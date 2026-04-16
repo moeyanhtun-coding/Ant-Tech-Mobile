@@ -5,6 +5,10 @@ import '../../../../core/usecases/usecase.dart';
 import '../../../attendance/domain/repositories/attendance_repository.dart';
 import '../../../duty_roster/domain/usecases/get_duty_roster_assignments_usecase.dart';
 import '../../domain/usecases/get_profile_usecase.dart';
+import 'package:dartz/dartz.dart';
+import '../../../../core/error/failures.dart';
+import '../../../attendance/domain/entities/attendance_entity.dart';
+import '../../../attendance/domain/entities/attendance_request_entity.dart';
 import 'home_event.dart';
 import 'home_state.dart';
 
@@ -63,17 +67,26 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
     emit(currentState.copyWith(isSummaryLoading: true));
 
-    final result = await attendanceRepository.getAttendanceByEmployee(
-      employeeGUID: event.employeeGUID,
-      month: event.month,
-    );
+    // Fetch both records and requests in parallel
+    final results = await Future.wait([
+      attendanceRepository.getAttendanceByEmployee(
+        employeeGUID: event.employeeGUID,
+        month: event.month,
+      ),
+      attendanceRepository.getAttendanceRequests(
+        employeeGUID: event.employeeGUID,
+        month: event.month,
+      ),
+    ]);
+
+    final recordResult = results[0] as Either<Failure, List<AttendanceEntity>>;
+    final requestResult = results[1] as Either<Failure, List<AttendanceRequest>>;
 
     if (state is! HomeLoaded) return;
     final currentStateAfter = state as HomeLoaded;
 
-    result.fold(
+    recordResult.fold(
       (failure) {
-        // Emit state without summary on failure, but stop loading
         emit(currentStateAfter.copyWith(isSummaryLoading: false));
       },
       (records) {
@@ -95,12 +108,21 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           }
         }
 
+        int pendingCount = 0;
+        requestResult.fold(
+          (_) => pendingCount = 0,
+          (requests) {
+            pendingCount = requests.where((r) => r.attendanceStatus == 'Pending').length;
+          },
+        );
+
         final monthLabel = DateFormat('MMMM yyyy').format(DateTime.now());
         final summary = AttendanceSummary(
           present: present,
           late: late,
           earlyLeft: earlyLeft,
           lateAndEarlyLeft: lateAndEarlyLeft,
+          pendingRequestCount: pendingCount,
           month: monthLabel,
         );
 
