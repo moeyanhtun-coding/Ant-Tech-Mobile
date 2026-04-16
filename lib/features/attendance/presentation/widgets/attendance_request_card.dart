@@ -1,7 +1,6 @@
+import 'package:at_hr_mobile/features/attendance/domain/entities/attendance_request_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
-import '../domain/entities/attendance_request_entity.dart';
 
 class AttendanceRequestCard extends StatelessWidget {
   final AttendanceRequest request;
@@ -42,15 +41,17 @@ class AttendanceRequestCard extends StatelessWidget {
                   Row(
                     children: [
                       Icon(
-                        request.requestType == 'CheckIn' 
-                            ? Icons.login_rounded 
+                        request.requestType == 'CheckIn'
+                            ? Icons.login_rounded
                             : Icons.logout_rounded,
                         size: 18,
                         color: colorScheme.primary,
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        request.requestType == 'CheckIn' ? 'Check-In Request' : 'Check-Out Request',
+                        request.requestType == 'CheckIn'
+                            ? 'Check-In Request'
+                            : 'Check-Out Request',
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
@@ -59,7 +60,7 @@ class AttendanceRequestCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  _buildStatusTag(request.status),
+                  _buildStatusTag(request.attendanceStatus),
                 ],
               ),
             ),
@@ -104,14 +105,17 @@ class AttendanceRequestCard extends StatelessWidget {
                       ),
                     ),
                   ],
-                  if (request.status == 'Rejected' && request.rejectDescription != null) ...[
+                  if (request.attendanceStatus == 'Rejected' &&
+                      request.rejectDescription != null) ...[
                     const SizedBox(height: 16),
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: Colors.red.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.red.withValues(alpha: 0.1)),
+                        border: Border.all(
+                          color: Colors.red.withValues(alpha: 0.1),
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,14 +180,23 @@ class AttendanceRequestCard extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoItem(BuildContext context, IconData icon, String label, String value) {
+  Widget _buildInfoItem(
+    BuildContext context,
+    IconData icon,
+    String label,
+    String value,
+  ) {
     final colorScheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Icon(icon, size: 14, color: colorScheme.onSurface.withValues(alpha: 0.5)),
+            Icon(
+              icon,
+              size: 14,
+              color: colorScheme.onSurface.withValues(alpha: 0.5),
+            ),
             const SizedBox(width: 4),
             Text(
               label,
