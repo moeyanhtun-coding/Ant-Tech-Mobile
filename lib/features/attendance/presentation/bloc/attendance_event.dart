@@ -11,14 +11,16 @@ abstract class AttendanceEvent extends Equatable {
 class GetAttendanceRequested extends AttendanceEvent {
   final String employeeGUID;
   final String month;
+  final bool forceRefresh;
 
   const GetAttendanceRequested({
     required this.employeeGUID,
     required this.month,
+    this.forceRefresh = false,
   });
 
   @override
-  List<Object?> get props => [employeeGUID, month];
+  List<Object?> get props => [employeeGUID, month, forceRefresh];
 }
 
 class ScanQRCodeRequested extends AttendanceEvent {
@@ -41,14 +43,16 @@ class ScanQRCodeRequested extends AttendanceEvent {
 class GetAttendanceRequestsRequested extends AttendanceEvent {
   final String employeeGUID;
   final String month;
+  final bool forceRefresh;
 
   const GetAttendanceRequestsRequested({
     required this.employeeGUID,
     required this.month,
+    this.forceRefresh = false,
   });
 
   @override
-  List<Object?> get props => [employeeGUID, month];
+  List<Object?> get props => [employeeGUID, month, forceRefresh];
 }
 
 class SubmitAttendanceRequestRequested extends AttendanceEvent {
@@ -58,4 +62,19 @@ class SubmitAttendanceRequestRequested extends AttendanceEvent {
 
   @override
   List<Object?> get props => [request];
+}
+
+class FetchAllAttendanceDataRequested extends AttendanceEvent {
+  final String employeeGUID;
+  final String month;
+  final bool forceRefresh;
+
+  const FetchAllAttendanceDataRequested({
+    required this.employeeGUID,
+    required this.month,
+    this.forceRefresh = false,
+  });
+
+  @override
+  List<Object?> get props => [employeeGUID, month, forceRefresh];
 }
