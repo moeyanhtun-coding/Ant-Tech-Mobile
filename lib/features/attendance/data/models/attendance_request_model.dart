@@ -1,4 +1,4 @@
-import '../domain/entities/attendance_request_entity.dart';
+import 'package:at_hr_mobile/features/attendance/domain/entities/attendance_request_entity.dart';
 
 class AttendanceRequestModel extends AttendanceRequest {
   const AttendanceRequestModel({
@@ -10,7 +10,7 @@ class AttendanceRequestModel extends AttendanceRequest {
     super.longitude,
     required super.description,
     required super.requestType,
-    required super.status,
+    required super.attendanceStatus,
     super.rejectDescription,
     super.employeeName,
     super.departmentName,
@@ -22,11 +22,15 @@ class AttendanceRequestModel extends AttendanceRequest {
       employeeGUID: json['employeeGUID'] ?? '',
       requestDate: json['requestDate'] ?? '',
       requestTime: json['requestTime'] ?? '',
-      latitude: json['latitude'] != null ? (json['latitude'] as num).toDouble() : null,
-      longitude: json['longitude'] != null ? (json['longitude'] as num).toDouble() : null,
+      latitude: json['latitude'] != null
+          ? (json['latitude'] as num).toDouble()
+          : null,
+      longitude: json['longitude'] != null
+          ? (json['longitude'] as num).toDouble()
+          : null,
       description: json['description'] ?? '',
       requestType: json['requestType'] ?? '',
-      status: json['status'] ?? '',
+      attendanceStatus: json['status'] ?? '',
       rejectDescription: json['rejectDescription'],
       employeeName: json['employeeName'],
       departmentName: json['departmentName'],
@@ -43,7 +47,7 @@ class AttendanceRequestModel extends AttendanceRequest {
       'longitude': longitude,
       'description': description,
       'requestType': requestType,
-      'status': status,
+      'status': attendanceStatus,
       'rejectDescription': rejectDescription,
     };
   }
