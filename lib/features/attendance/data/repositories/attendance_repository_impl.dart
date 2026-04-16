@@ -70,7 +70,9 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
   }
 
   @override
-  Future<Either<Failure, String>> submitAttendanceRequest(AttendanceRequest request) async {
+  Future<Either<Failure, String>> submitAttendanceRequest(
+    AttendanceRequest request,
+  ) async {
     try {
       final model = AttendanceRequestModel(
         guid: request.guid,
@@ -81,7 +83,7 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
         longitude: request.longitude,
         description: request.description,
         requestType: request.requestType,
-        status: request.status,
+        attendanceStatus: request.attendanceStatus,
       );
       final message = await remoteDataSource.submitAttendanceRequest(model);
       return Right(message);
