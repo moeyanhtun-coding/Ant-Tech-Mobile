@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../../domain/entities/attendance_entity.dart';
+import '../../domain/entities/attendance_request_entity.dart';
 
 abstract class AttendanceState extends Equatable {
   const AttendanceState();
@@ -43,6 +44,35 @@ class ScanQRCodeFailure extends AttendanceState {
   final String message;
 
   const ScanQRCodeFailure({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class AttendanceRequestsLoading extends AttendanceState {}
+
+class AttendanceRequestsLoaded extends AttendanceState {
+  final List<AttendanceRequest> requests;
+
+  const AttendanceRequestsLoaded({required this.requests});
+
+  @override
+  List<Object?> get props => [requests];
+}
+
+class AttendanceRequestSubmitSuccess extends AttendanceState {
+  final String message;
+
+  const AttendanceRequestSubmitSuccess({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class AttendanceRequestSubmitFailure extends AttendanceState {
+  final String message;
+
+  const AttendanceRequestSubmitFailure({required this.message});
 
   @override
   List<Object?> get props => [message];
