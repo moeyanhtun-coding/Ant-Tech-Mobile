@@ -40,7 +40,7 @@ class _AttendancePageState extends State<AttendancePage>
       initialIndex: widget.initialTabIndex,
     );
     _tabController.addListener(_handleTabSelection);
-    _fetchData();
+    _fetchAllData();
   }
 
   void _handleTabSelection() {
@@ -48,36 +48,25 @@ class _AttendancePageState extends State<AttendancePage>
       setState(() {
         _activeTabIndex = _tabController.index;
       });
-      _fetchData();
+      // No re-fetch needed on tab change because we pre-fetch both!
     }
   }
 
-  void _fetchData() {
+  void _fetchAllData({bool forceRefresh = false}) {
     final monthStr = DateFormat('yyyy-MM').format(_selectedMonth);
-    if (_tabController.index == 0) {
-      context.read<AttendanceBloc>().add(
-            GetAttendanceRequested(
-              employeeGUID: widget.employeeGUID,
-              month: monthStr,
-            ),
-          );
-    } else {
-      context.read<AttendanceBloc>().add(
-            GetAttendanceRequestsRequested(
-              employeeGUID: widget.employeeGUID,
-              month: monthStr,
-            ),
-          );
-    }
+    context.read<AttendanceBloc>().add(
+          FetchAllAttendanceDataRequested(
+            employeeGUID: widget.employeeGUID,
+            month: monthStr,
+            forceRefresh: forceRefresh,
+          ),
+        );
   }
 
   Future<void> _onRefresh() async {
-    _fetchData();
+    _fetchAllData(forceRefresh: true);
     await context.read<AttendanceBloc>().stream.firstWhere(
-          (state) =>
-              state is AttendanceLoaded ||
-              state is AttendanceRequestsLoaded ||
-              state is AttendanceFailure,
+          (state) => !state.isLoadingRecords && !state.isLoadingRequests,
         );
   }
 
@@ -92,7 +81,7 @@ class _AttendancePageState extends State<AttendancePage>
       setState(() {
         _selectedMonth = picked;
       });
-      _fetchData();
+      _fetchAllData();
     }
   }
 
@@ -155,21 +144,28 @@ class _AttendancePageState extends State<AttendancePage>
         ),
       ),
       body: BlocListener<AttendanceBloc, AttendanceState>(
+        listenWhen: (previous, current) =>
+            previous.qrScanMessage != current.qrScanMessage ||
+            previous.qrScanError != current.qrScanError ||
+            previous.submitRequestMessage != current.submitRequestMessage ||
+            previous.submitRequestError != current.submitRequestError,
         listener: (context, state) {
-          if (state is ScanQRCodeSuccess || state is AttendanceRequestSubmitSuccess) {
-            if (state is AttendanceRequestSubmitSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            }
-            _fetchData();
-          } else if (state is AttendanceRequestSubmitFailure) {
+          if (state.qrScanMessage != null) {
+             // Optional feedback for scan success, but usually handled in scanner page
+          }
+          
+          if (state.submitRequestMessage != null) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.message),
+                content: Text(state.submitRequestMessage!),
+                backgroundColor: Colors.green,
+              ),
+            );
+            _fetchAllData(forceRefresh: true);
+          } else if (state.submitRequestError != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.submitRequestError!),
                 backgroundColor: Colors.red,
               ),
             );
@@ -196,26 +192,27 @@ class _AttendancePageState extends State<AttendancePage>
   Widget _buildAttendanceList() {
     return BlocBuilder<AttendanceBloc, AttendanceState>(
       builder: (context, state) {
-        if (state is AttendanceLoading) {
+        if (state.isLoadingRecords && state.records.isEmpty) {
           return const Center(child: CircularProgressIndicator());
-        } else if (state is AttendanceLoaded) {
-          if (state.records.isEmpty) {
-            return _buildEmptyState('No Records Found', 'There are no attendance records for this period.');
-          }
-          return RefreshIndicator(
-            onRefresh: () async => _onRefresh(),
-            child: ListView.builder(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 80),
-              itemCount: state.records.length,
-              itemBuilder: (context, index) {
-                return AttendanceCard(record: state.records[index]);
-              },
-            ),
-          );
-        } else if (state is AttendanceFailure) {
-          return _buildErrorState(state.message);
         }
-        return const SizedBox.shrink();
+        
+        if (state.records.isEmpty) {
+          return RefreshIndicator(
+            onRefresh: _onRefresh,
+            child: _buildEmptyState('No Records Found', 'There are no attendance records for this period.'),
+          );
+        }
+        
+        return RefreshIndicator(
+          onRefresh: _onRefresh,
+          child: ListView.builder(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 80),
+            itemCount: state.records.length,
+            itemBuilder: (context, index) {
+              return AttendanceCard(record: state.records[index]);
+            },
+          ),
+        );
       },
     );
   }
@@ -223,26 +220,27 @@ class _AttendancePageState extends State<AttendancePage>
   Widget _buildRequestList() {
     return BlocBuilder<AttendanceBloc, AttendanceState>(
       builder: (context, state) {
-        if (state is AttendanceRequestsLoading) {
+        if (state.isLoadingRequests && state.requests.isEmpty) {
           return const Center(child: CircularProgressIndicator());
-        } else if (state is AttendanceRequestsLoaded) {
-          if (state.requests.isEmpty) {
-            return _buildEmptyState('No Requests Found', 'There are no attendance requests for this period.');
-          }
-          return RefreshIndicator(
-            onRefresh: () async => _onRefresh(),
-            child: ListView.builder(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 80),
-              itemCount: state.requests.length,
-              itemBuilder: (context, index) {
-                return AttendanceRequestCard(request: state.requests[index]);
-              },
-            ),
-          );
-        } else if (state is AttendanceFailure) {
-          return _buildErrorState(state.message);
         }
-        return const SizedBox.shrink();
+        
+        if (state.requests.isEmpty) {
+          return RefreshIndicator(
+            onRefresh: _onRefresh,
+            child: _buildEmptyState('No Requests Found', 'There are no attendance requests for this period.'),
+          );
+        }
+        
+        return RefreshIndicator(
+          onRefresh: _onRefresh,
+          child: ListView.builder(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 80),
+            itemCount: state.requests.length,
+            itemBuilder: (context, index) {
+              return AttendanceRequestCard(request: state.requests[index]);
+            },
+          ),
+        );
       },
     );
   }
@@ -355,7 +353,7 @@ class _AttendancePageState extends State<AttendancePage>
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton(
-                    onPressed: _fetchData,
+                    onPressed: _fetchAllData,
                     child: const Text('Retry'),
                   ),
                 ],
