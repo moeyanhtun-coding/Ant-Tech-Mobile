@@ -9,7 +9,7 @@ class AttendanceRequest extends Equatable {
   final double? longitude;
   final String description;
   final String requestType;
-  final String status;
+  final String attendanceStatus;
   final String? rejectDescription;
   final String? employeeName;
   final String? departmentName;
@@ -23,7 +23,7 @@ class AttendanceRequest extends Equatable {
     this.longitude,
     required this.description,
     required this.requestType,
-    required this.status,
+    required this.attendanceStatus,
     this.rejectDescription,
     this.employeeName,
     this.departmentName,
@@ -39,7 +39,7 @@ class AttendanceRequest extends Equatable {
         longitude,
         description,
         requestType,
-        status,
+        attendanceStatus,
         rejectDescription,
         employeeName,
         departmentName,
