@@ -74,7 +74,7 @@ class _HomePageState extends State<HomePage> {
         listeners: [
           BlocListener<AttendanceBloc, AttendanceState>(
             listener: (context, state) {
-              if (state is ScanQRCodeSuccess) {
+              if (state.qrScanMessage != null) {
                 final homeState = context.read<HomeBloc>().state;
                 if (homeState is HomeLoaded) {
                   final currentMonth = DateFormat(
@@ -395,7 +395,8 @@ class _HomePageState extends State<HomePage> {
                               context,
                               MaterialPageRoute(
                                 builder: (_) => AttendancePage(
-                                  employeeGUID: currentState.profile.employeeGUID,
+                                  employeeGUID:
+                                      currentState.profile.employeeGUID,
                                   initialTabIndex: 1, // Requests tab
                                 ),
                               ),
@@ -428,8 +429,9 @@ class _HomePageState extends State<HomePage> {
         decoration: BoxDecoration(
           color: color.withValues(alpha: isDark ? 0.15 : 0.08),
           borderRadius: BorderRadius.circular(14),
-          border:
-              Border.all(color: color.withValues(alpha: isDark ? 0.2 : 0.15)),
+          border: Border.all(
+            color: color.withValues(alpha: isDark ? 0.2 : 0.15),
+          ),
         ),
         child: Row(
           children: [
