@@ -12,21 +12,31 @@ import '../widgets/attendance_request_dialog.dart';
 
 class AttendancePage extends StatefulWidget {
   final String employeeGUID;
+  final int initialTabIndex;
 
-  const AttendancePage({super.key, required this.employeeGUID});
+  const AttendancePage({
+    super.key,
+    required this.employeeGUID,
+    this.initialTabIndex = 0,
+  });
 
   @override
   State<AttendancePage> createState() => _AttendancePageState();
 }
 
-class _AttendancePageState extends State<AttendancePage> with SingleTickerProviderStateMixin {
+class _AttendancePageState extends State<AttendancePage>
+    with SingleTickerProviderStateMixin {
   DateTime _selectedMonth = DateTime.now();
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: widget.initialTabIndex,
+    );
     _tabController.addListener(_handleTabSelection);
     _fetchData();
   }
