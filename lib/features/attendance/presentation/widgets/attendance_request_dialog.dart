@@ -90,7 +90,7 @@ class _AttendanceRequestDialogState extends State<AttendanceRequestDialog> {
       longitude: _currentPosition!.longitude,
       description: _descriptionController.text.trim(),
       requestType: '', // Determined by backend (CheckIn vs CheckOut)
-      status: 'Pending',
+      attendanceStatus: 'Pending',
     );
 
     context.read<AttendanceBloc>().add(SubmitAttendanceRequestRequested(request));
@@ -103,126 +103,128 @@ class _AttendanceRequestDialogState extends State<AttendanceRequestDialog> {
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.add_task_rounded, color: colorScheme.primary),
-                const SizedBox(width: 8),
-                Text(
-                  'Attendance Request',
-                  style: GoogleFonts.poppins(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            _buildReadOnlyField(context, 'Date', _currentDate, Icons.calendar_today_rounded),
-            const SizedBox(height: 16),
-            _buildReadOnlyField(context, 'Time', _currentTime, Icons.access_time_rounded),
-            const SizedBox(height: 16),
-            
-            // Location Status
-            Text(
-              'Location',
-              style: GoogleFonts.poppins(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: colorScheme.onSurface.withValues(alpha: 0.5),
-              ),
-            ),
-            const SizedBox(height: 4),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  Icon(
-                    _currentPosition != null ? Icons.location_on_rounded : Icons.location_off_rounded,
-                    size: 16,
-                    color: _currentPosition != null ? Colors.green : Colors.orange,
-                  ),
+                  Icon(Icons.add_task_rounded, color: colorScheme.primary),
                   const SizedBox(width: 8),
-                  Expanded(
-                    child: _isLoadingLocation
-                        ? const SizedBox(
-                            height: 14,
-                            width: 14,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : Text(
-                            _currentPosition != null
-                                ? 'Location Captured (${_currentPosition!.latitude.toStringAsFixed(4)}, ${_currentPosition!.longitude.toStringAsFixed(4)})'
-                                : _locationError ?? 'Capturing location...',
-                            style: GoogleFonts.poppins(
-                              fontSize: 13,
-                              color: _currentPosition != null ? Colors.green[700] : Colors.orange[700],
-                            ),
-                          ),
+                  Text(
+                    'Attendance Request',
+                    style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
-            ),
-            
-            const SizedBox(height: 24),
-            Text(
-              'Description',
-              style: GoogleFonts.poppins(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: colorScheme.onSurface.withValues(alpha: 0.5),
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _descriptionController,
-              maxLines: 3,
-              style: GoogleFonts.poppins(fontSize: 14),
-              decoration: InputDecoration(
-                hintText: 'Enter reason for manual request (e.g. client visit)',
-                hintStyle: GoogleFonts.poppins(color: Colors.grey, fontSize: 13),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                filled: true,
-                fillColor: colorScheme.surface,
-              ),
-            ),
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    'Cancel',
-                    style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-                  ),
+              const SizedBox(height: 24),
+              _buildReadOnlyField(context, 'Date', _currentDate, Icons.calendar_today_rounded),
+              const SizedBox(height: 16),
+              _buildReadOnlyField(context, 'Time', _currentTime, Icons.access_time_rounded),
+              const SizedBox(height: 16),
+              
+              // Location Status
+              Text(
+                'Location',
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface.withValues(alpha: 0.5),
                 ),
-                const SizedBox(width: 12),
-                ElevatedButton(
-                  onPressed: _isLoadingLocation ? null : _submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: colorScheme.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: Text(
-                    'Submit Request',
-                    style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-                  ),
+              ),
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-              ],
-            ),
-          ],
+                child: Row(
+                  children: [
+                    Icon(
+                      _currentPosition != null ? Icons.location_on_rounded : Icons.location_off_rounded,
+                      size: 16,
+                      color: _currentPosition != null ? Colors.green : Colors.orange,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _isLoadingLocation
+                          ? const SizedBox(
+                              height: 14,
+                              width: 14,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Text(
+                              _currentPosition != null
+                                  ? 'Location Captured (${_currentPosition!.latitude.toStringAsFixed(4)}, ${_currentPosition!.longitude.toStringAsFixed(4)})'
+                                  : _locationError ?? 'Capturing location...',
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                color: _currentPosition != null ? Colors.green[700] : Colors.orange[700],
+                              ),
+                            ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              const SizedBox(height: 24),
+              Text(
+                'Description',
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface.withValues(alpha: 0.5),
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _descriptionController,
+                maxLines: 3,
+                style: GoogleFonts.poppins(fontSize: 14),
+                decoration: InputDecoration(
+                  hintText: 'Enter reason for manual request (e.g. client visit)',
+                  hintStyle: GoogleFonts.poppins(color: Colors.grey, fontSize: 13),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  filled: true,
+                  fillColor: colorScheme.surface,
+                ),
+              ),
+              const SizedBox(height: 32),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(
+                      'Cancel',
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton(
+                    onPressed: _isLoadingLocation ? null : _submit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: colorScheme.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: Text(
+                      'Submit Request',
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
