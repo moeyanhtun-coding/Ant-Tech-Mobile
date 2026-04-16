@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:at_hr_mobile/features/attendance/data/models/attendance_request_model.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/utils/local_storage.dart';
@@ -16,6 +17,13 @@ abstract class AttendanceRemoteDataSource {
     double? latitude,
     double? longitude,
   });
+
+  Future<List<AttendanceRequestModel>> getAttendanceRequests({
+    required String employeeGUID,
+    required String month,
+  });
+
+  Future<String> submitAttendanceRequest(AttendanceRequestModel request);
 }
 
 class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
@@ -30,23 +38,19 @@ class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
   }) async {
     try {
       final token = await LocalStorage.getToken();
-      
+
       final response = await dio.get(
         '/AttendanceApi/GetAttendanceByEmployee',
-        queryParameters: {
-          'employeeGUID': employeeGUID,
-          'month': month,
-        },
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
+        queryParameters: {'employeeGUID': employeeGUID, 'month': month},
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
-        await LocalStorage.saveCache('CACHE_ATTENDANCE_$month', jsonEncode(data));
+        await LocalStorage.saveCache(
+          'CACHE_ATTENDANCE_$month',
+          jsonEncode(data),
+        );
         return data.map((json) => AttendanceModel.fromJson(json)).toList();
       } else {
         throw const ServerFailure('Failed to fetch attendance');
@@ -81,7 +85,7 @@ class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
   }) async {
     try {
       final token = await LocalStorage.getToken();
-      
+
       final response = await dio.post(
         '/AttendanceApi/ScanQRCode',
         data: {
@@ -90,17 +94,66 @@ class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
           'Latitude': latitude,
           'Longitude': longitude,
         },
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
       if (response.statusCode == 200) {
         return response.data['message'];
       } else {
         throw ServerFailure(response.data['message'] ?? 'Check-in failed');
+      }
+    } on DioException catch (e) {
+      if (e.response != null && e.response!.data != null) {
+        throw ServerFailure(e.response!.data['message'] ?? 'Network error');
+      }
+      throw ServerFailure(e.message ?? 'Network error');
+    } catch (e) {
+      throw ServerFailure(e.toString());
+    }
+  }
+
+  @override
+  Future<List<AttendanceRequestModel>> getAttendanceRequests({
+    required String employeeGUID,
+    required String month,
+  }) async {
+    try {
+      final token = await LocalStorage.getToken();
+      final response = await dio.get(
+        '/AttendanceRequestApi/GetRequestsByEmployee',
+        queryParameters: {'employeeGUID': employeeGUID, 'month': month},
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data;
+        return data
+            .map((json) => AttendanceRequestModel.fromJson(json))
+            .toList();
+      } else {
+        throw const ServerFailure('Failed to fetch attendance requests');
+      }
+    } on DioException catch (e) {
+      throw ServerFailure(e.message ?? 'Network error');
+    } catch (e) {
+      throw ServerFailure(e.toString());
+    }
+  }
+
+  @override
+  Future<String> submitAttendanceRequest(AttendanceRequestModel request) async {
+    try {
+      final token = await LocalStorage.getToken();
+      final response = await dio.post(
+        '/AttendanceRequestApi/SubmitRequest',
+        data: request.toJson(),
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+
+      if (response.statusCode == 200) {
+        return response.data['message'];
+      } else {
+        throw ServerFailure(response.data['message'] ?? 'Submission failed');
       }
     } on DioException catch (e) {
       if (e.response != null && e.response!.data != null) {
