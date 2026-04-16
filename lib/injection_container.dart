@@ -6,8 +6,11 @@ import 'package:at_hr_mobile/features/duty_roster/domain/usecases/get_duty_roste
 import 'package:at_hr_mobile/features/duty_roster/presentation/bloc/duty_roster_bloc.dart';
 import 'package:at_hr_mobile/features/attendance/data/repositories/attendance_repository_impl.dart';
 import 'package:at_hr_mobile/features/attendance/domain/repositories/attendance_repository.dart';
+import 'package:at_hr_mobile/features/attendance/domain/usecases/get_attendance_requests.dart';
+import 'package:at_hr_mobile/features/attendance/domain/usecases/submit_attendance_request.dart';
 import 'package:at_hr_mobile/features/attendance/domain/usecases/get_attendance_usecase.dart';
 import 'package:at_hr_mobile/features/attendance/domain/usecases/scan_qr_code_usecase.dart';
+import 'package:at_hr_mobile/features/settings/presentation/bloc/theme_bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'core/network/dio_client.dart';
@@ -27,7 +30,9 @@ import 'features/payroll/data/repositories/pay_slip_repository_impl.dart';
 import 'features/payroll/domain/repositories/pay_slip_repository.dart';
 import 'features/payroll/domain/usecases/get_pay_slips_usecase.dart';
 import 'features/payroll/presentation/bloc/pay_slip_bloc.dart';
-import 'features/settings/presentation/bloc/theme_bloc.dart';
+import 'core/network/network_info.dart';
+import 'core/bloc/network/network_bloc.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 final sl = GetIt.instance; // sl is short for Service Locator
 
@@ -77,10 +82,17 @@ Future<void> init() async {
 
   // Features - Attendance
   sl.registerFactory(
-    () => AttendanceBloc(getAttendanceUseCase: sl(), scanQRCodeUseCase: sl()),
+    () => AttendanceBloc(
+      getAttendanceUseCase: sl(),
+      scanQRCodeUseCase: sl(),
+      getAttendanceRequests: sl(),
+      submitAttendanceRequest: sl(),
+    ),
   );
   sl.registerLazySingleton(() => GetAttendanceUseCase(sl()));
   sl.registerLazySingleton(() => ScanQRCodeUseCase(sl()));
+  sl.registerLazySingleton(() => GetAttendanceRequests(sl()));
+  sl.registerLazySingleton(() => SubmitAttendanceRequest(sl()));
   sl.registerLazySingleton<AttendanceRepository>(
     () => AttendanceRepositoryImpl(remoteDataSource: sl()),
   );
@@ -110,9 +122,13 @@ Future<void> init() async {
 
   sl.registerLazySingleton(() => ThemeBloc());
 
+  sl.registerFactory(() => NetworkBloc(networkInfo: sl()));
+
   // Core
+  sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
   sl.registerLazySingleton(() => DioClient(sl()));
 
   // External
+  sl.registerLazySingleton(() => Connectivity());
   sl.registerLazySingleton(() => Dio());
 }
