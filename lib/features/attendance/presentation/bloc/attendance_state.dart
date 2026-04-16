@@ -2,78 +2,68 @@ import 'package:equatable/equatable.dart';
 import '../../domain/entities/attendance_entity.dart';
 import '../../domain/entities/attendance_request_entity.dart';
 
-abstract class AttendanceState extends Equatable {
-  const AttendanceState();
-
-  @override
-  List<Object?> get props => [];
-}
-
-class AttendanceInitial extends AttendanceState {}
-
-class AttendanceLoading extends AttendanceState {}
-
-class AttendanceLoaded extends AttendanceState {
+class AttendanceState extends Equatable {
   final List<AttendanceEntity> records;
-
-  const AttendanceLoaded({required this.records});
-
-  @override
-  List<Object?> get props => [records];
-}
-
-class AttendanceFailure extends AttendanceState {
-  final String message;
-
-  const AttendanceFailure({required this.message});
-
-  @override
-  List<Object?> get props => [message];
-}
-
-class ScanQRCodeSuccess extends AttendanceState {
-  final String message;
-
-  const ScanQRCodeSuccess({required this.message});
-
-  @override
-  List<Object?> get props => [message];
-}
-
-class ScanQRCodeFailure extends AttendanceState {
-  final String message;
-
-  const ScanQRCodeFailure({required this.message});
-
-  @override
-  List<Object?> get props => [message];
-}
-
-class AttendanceRequestsLoading extends AttendanceState {}
-
-class AttendanceRequestsLoaded extends AttendanceState {
   final List<AttendanceRequest> requests;
+  final bool isLoadingRecords;
+  final bool isLoadingRequests;
+  final String? error;
+  final String? successMessage; 
+  final String? qrScanMessage;
+  final String? qrScanError;
+  final String? submitRequestMessage;
+  final String? submitRequestError;
 
-  const AttendanceRequestsLoaded({required this.requests});
+  const AttendanceState({
+    this.records = const [],
+    this.requests = const [],
+    this.isLoadingRecords = false,
+    this.isLoadingRequests = false,
+    this.error,
+    this.successMessage,
+    this.qrScanMessage,
+    this.qrScanError,
+    this.submitRequestMessage,
+    this.submitRequestError,
+  });
+
+  AttendanceState copyWith({
+    List<AttendanceEntity>? records,
+    List<AttendanceRequest>? requests,
+    bool? isLoadingRecords,
+    bool? isLoadingRequests,
+    String? error,
+    String? successMessage,
+    String? qrScanMessage,
+    String? qrScanError,
+    String? submitRequestMessage,
+    String? submitRequestError,
+  }) {
+    return AttendanceState(
+      records: records ?? this.records,
+      requests: requests ?? this.requests,
+      isLoadingRecords: isLoadingRecords ?? this.isLoadingRecords,
+      isLoadingRequests: isLoadingRequests ?? this.isLoadingRequests,
+      error: error ?? this.error,
+      successMessage: successMessage ?? this.successMessage,
+      qrScanMessage: qrScanMessage ?? this.qrScanMessage,
+      qrScanError: qrScanError ?? this.qrScanError,
+      submitRequestMessage: submitRequestMessage ?? this.submitRequestMessage,
+      submitRequestError: submitRequestError ?? this.submitRequestError,
+    );
+  }
 
   @override
-  List<Object?> get props => [requests];
-}
-
-class AttendanceRequestSubmitSuccess extends AttendanceState {
-  final String message;
-
-  const AttendanceRequestSubmitSuccess({required this.message});
-
-  @override
-  List<Object?> get props => [message];
-}
-
-class AttendanceRequestSubmitFailure extends AttendanceState {
-  final String message;
-
-  const AttendanceRequestSubmitFailure({required this.message});
-
-  @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [
+        records,
+        requests,
+        isLoadingRecords,
+        isLoadingRequests,
+        error,
+        successMessage,
+        qrScanMessage,
+        qrScanError,
+        submitRequestMessage,
+        submitRequestError,
+      ];
 }
