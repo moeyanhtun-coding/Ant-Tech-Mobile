@@ -11,10 +11,12 @@ class GetAttendanceRequests {
   Future<Either<Failure, List<AttendanceRequest>>> call({
     required String employeeGUID,
     required String month,
+    bool forceRefresh = false,
   }) async {
     return await repository.getAttendanceRequests(
       employeeGUID: employeeGUID,
       month: month,
+      forceRefresh: forceRefresh,
     );
   }
 }
