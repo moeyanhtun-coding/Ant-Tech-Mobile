@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:at_hr_mobile/features/attendance/data/models/attendance_request_model.dart';
+import 'package:at_hr_mobile/features/attendance/data/models/attendance_summary_model.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/utils/local_storage.dart';
@@ -24,6 +25,11 @@ abstract class AttendanceRemoteDataSource {
   });
 
   Future<String> submitAttendanceRequest(AttendanceRequestModel request);
+
+  Future<AttendanceSummaryModel> getAttendanceSummary({
+    required String employeeGUID,
+    required String month,
+  });
 }
 
 class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
@@ -159,6 +165,31 @@ class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
       if (e.response != null && e.response!.data != null) {
         throw ServerFailure(e.response!.data['message'] ?? 'Network error');
       }
+      throw ServerFailure(e.message ?? 'Network error');
+    } catch (e) {
+      throw ServerFailure(e.toString());
+    }
+  }
+
+  @override
+  Future<AttendanceSummaryModel> getAttendanceSummary({
+    required String employeeGUID,
+    required String month,
+  }) async {
+    try {
+      final token = await LocalStorage.getToken();
+      final response = await dio.get(
+        '/AttendanceApi/GetAttendanceSummary',
+        queryParameters: {'employeeGUID': employeeGUID, 'month': month},
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+
+      if (response.statusCode == 200) {
+        return AttendanceSummaryModel.fromJson(response.data);
+      } else {
+        throw const ServerFailure('Failed to fetch attendance summary');
+      }
+    } on DioException catch (e) {
       throw ServerFailure(e.message ?? 'Network error');
     } catch (e) {
       throw ServerFailure(e.toString());
