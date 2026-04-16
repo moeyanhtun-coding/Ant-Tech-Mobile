@@ -1,4 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:dartz/dartz.dart';
+import '../../../../core/error/failures.dart';
+import '../../domain/entities/attendance_entity.dart';
+import '../../domain/entities/attendance_request_entity.dart';
 import '../../domain/usecases/get_attendance_requests.dart';
 import '../../domain/usecases/get_attendance_usecase.dart';
 import '../../domain/usecases/scan_qr_code_usecase.dart';
@@ -17,27 +21,103 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     required this.scanQRCodeUseCase,
     required this.getAttendanceRequests,
     required this.submitAttendanceRequest,
-  }) : super(AttendanceInitial()) {
+  }) : super(const AttendanceState()) {
     on<GetAttendanceRequested>(_onGetAttendanceRequested);
-    on<ScanQRCodeRequested>(_onScanQRCodeRequested);
     on<GetAttendanceRequestsRequested>(_onGetAttendanceRequestsRequested);
+    on<ScanQRCodeRequested>(_onScanQRCodeRequested);
     on<SubmitAttendanceRequestRequested>(_onSubmitAttendanceRequestRequested);
+    on<FetchAllAttendanceDataRequested>(_onFetchAllAttendanceDataRequested);
+  }
+
+  Future<void> _onFetchAllAttendanceDataRequested(
+    FetchAllAttendanceDataRequested event,
+    Emitter<AttendanceState> emit,
+  ) async {
+    emit(state.copyWith(
+      isLoadingRecords: true,
+      isLoadingRequests: true,
+      error: null,
+    ));
+
+    final results = await Future.wait([
+      getAttendanceUseCase(GetAttendanceParams(
+        employeeGUID: event.employeeGUID,
+        month: event.month,
+        forceRefresh: event.forceRefresh,
+      )),
+      getAttendanceRequests(
+        employeeGUID: event.employeeGUID,
+        month: event.month,
+        forceRefresh: event.forceRefresh,
+      ),
+    ]);
+
+    final recordResult = results[0] as Either<Failure, List<AttendanceEntity>>;
+    final requestResult = results[1] as Either<Failure, List<AttendanceRequest>>;
+
+    AttendanceState newState = state.copyWith(
+      isLoadingRecords: false,
+      isLoadingRequests: false,
+    );
+
+    recordResult.fold(
+      (failure) => newState = newState.copyWith(error: failure.message),
+      (records) => newState = newState.copyWith(records: records),
+    );
+
+    requestResult.fold(
+      (failure) => newState = newState.copyWith(error: failure.message),
+      (requests) => newState = newState.copyWith(requests: requests),
+    );
+
+    emit(newState);
   }
 
   Future<void> _onGetAttendanceRequested(
     GetAttendanceRequested event,
     Emitter<AttendanceState> emit,
   ) async {
-    emit(AttendanceLoading());
+    emit(state.copyWith(isLoadingRecords: true));
 
     final result = await getAttendanceUseCase(GetAttendanceParams(
       employeeGUID: event.employeeGUID,
       month: event.month,
+      forceRefresh: event.forceRefresh,
     ));
 
     result.fold(
-      (failure) => emit(AttendanceFailure(message: failure.message)),
-      (records) => emit(AttendanceLoaded(records: records)),
+      (failure) => emit(state.copyWith(
+        isLoadingRecords: false,
+        error: failure.message,
+      )),
+      (records) => emit(state.copyWith(
+        isLoadingRecords: false,
+        records: records,
+      )),
+    );
+  }
+
+  Future<void> _onGetAttendanceRequestsRequested(
+    GetAttendanceRequestsRequested event,
+    Emitter<AttendanceState> emit,
+  ) async {
+    emit(state.copyWith(isLoadingRequests: true));
+
+    final result = await getAttendanceRequests(
+      employeeGUID: event.employeeGUID,
+      month: event.month,
+      forceRefresh: event.forceRefresh,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isLoadingRequests: false,
+        error: failure.message,
+      )),
+      (requests) => emit(state.copyWith(
+        isLoadingRequests: false,
+        requests: requests,
+      )),
     );
   }
 
@@ -45,7 +125,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     ScanQRCodeRequested event,
     Emitter<AttendanceState> emit,
   ) async {
-    emit(AttendanceLoading());
+    emit(state.copyWith(isLoadingRecords: true)); // Or keep current loading state
 
     final result = await scanQRCodeUseCase(ScanQRCodeParams(
       employeeGUID: event.employeeGUID,
@@ -55,25 +135,16 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     ));
 
     result.fold(
-      (failure) => emit(ScanQRCodeFailure(message: failure.message)),
-      (message) => emit(ScanQRCodeSuccess(message: message)),
-    );
-  }
-
-  Future<void> _onGetAttendanceRequestsRequested(
-    GetAttendanceRequestsRequested event,
-    Emitter<AttendanceState> emit,
-  ) async {
-    emit(AttendanceRequestsLoading());
-
-    final result = await getAttendanceRequests(
-      employeeGUID: event.employeeGUID,
-      month: event.month,
-    );
-
-    result.fold(
-      (failure) => emit(AttendanceFailure(message: failure.message)),
-      (requests) => emit(AttendanceRequestsLoaded(requests: requests)),
+      (failure) => emit(state.copyWith(
+        isLoadingRecords: false,
+        qrScanError: failure.message,
+        qrScanMessage: null,
+      )),
+      (message) => emit(state.copyWith(
+        isLoadingRecords: false,
+        qrScanMessage: message,
+        qrScanError: null,
+      )),
     );
   }
 
@@ -81,13 +152,21 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     SubmitAttendanceRequestRequested event,
     Emitter<AttendanceState> emit,
   ) async {
-    emit(AttendanceLoading());
+    emit(state.copyWith(isLoadingRequests: true));
 
     final result = await submitAttendanceRequest(event.request);
 
     result.fold(
-      (failure) => emit(AttendanceRequestSubmitFailure(message: failure.message)),
-      (message) => emit(AttendanceRequestSubmitSuccess(message: message)),
+      (failure) => emit(state.copyWith(
+        isLoadingRequests: false,
+        submitRequestError: failure.message,
+        submitRequestMessage: null,
+      )),
+      (message) => emit(state.copyWith(
+        isLoadingRequests: false,
+        submitRequestMessage: message,
+        submitRequestError: null,
+      )),
     );
   }
 }
