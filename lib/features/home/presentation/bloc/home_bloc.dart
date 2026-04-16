@@ -67,63 +67,27 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
     emit(currentState.copyWith(isSummaryLoading: true));
 
-    // Fetch both records and requests in parallel
-    final results = await Future.wait([
-      attendanceRepository.getAttendanceByEmployee(
-        employeeGUID: event.employeeGUID,
-        month: event.month,
-      ),
-      attendanceRepository.getAttendanceRequests(
-        employeeGUID: event.employeeGUID,
-        month: event.month,
-      ),
-    ]);
-
-    final recordResult = results[0] as Either<Failure, List<AttendanceEntity>>;
-    final requestResult = results[1] as Either<Failure, List<AttendanceRequest>>;
+    final result = await attendanceRepository.getAttendanceSummary(
+      employeeGUID: event.employeeGUID,
+      month: event.month,
+    );
 
     if (state is! HomeLoaded) return;
     final currentStateAfter = state as HomeLoaded;
 
-    recordResult.fold(
+    result.fold(
       (failure) {
         emit(currentStateAfter.copyWith(isSummaryLoading: false));
       },
-      (records) {
-        int present = 0;
-        int late = 0;
-        int earlyLeft = 0;
-        int lateAndEarlyLeft = 0;
-
-        for (final record in records) {
-          final status = record.attendanceStatus.trim().toLowerCase();
-          if (status == 'present') {
-            present++;
-          } else if (status == 'late') {
-            late++;
-          } else if (status == 'early left') {
-            earlyLeft++;
-          } else if (status == 'late + early left') {
-            lateAndEarlyLeft++;
-          }
-        }
-
-        int pendingCount = 0;
-        requestResult.fold(
-          (_) => pendingCount = 0,
-          (requests) {
-            pendingCount = requests.where((r) => r.attendanceStatus == 'Pending').length;
-          },
-        );
-
-        final monthLabel = DateFormat('MMMM yyyy').format(DateTime.now());
+      (summaryEntity) {
+        // Map the domain entity to the UI model (AttendanceSummary)
         final summary = AttendanceSummary(
-          present: present,
-          late: late,
-          earlyLeft: earlyLeft,
-          lateAndEarlyLeft: lateAndEarlyLeft,
-          pendingRequestCount: pendingCount,
-          month: monthLabel,
+          present: summaryEntity.present,
+          late: summaryEntity.late,
+          earlyLeft: summaryEntity.earlyLeft,
+          lateAndEarlyLeft: summaryEntity.lateAndEarlyLeft,
+          pendingRequestCount: summaryEntity.pendingRequestCount,
+          month: summaryEntity.month,
         );
 
         emit(
