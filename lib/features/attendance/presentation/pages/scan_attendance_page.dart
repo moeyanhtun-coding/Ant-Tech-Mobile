@@ -39,7 +39,9 @@ class _ScanAttendancePageState extends State<ScanAttendancePage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Location services are disabled. Please enable GPS in settings.'),
+              content: Text(
+                'Location services are disabled. Please enable GPS in settings.',
+              ),
               backgroundColor: Colors.red,
             ),
           );
@@ -63,10 +65,7 @@ class _ScanAttendancePageState extends State<ScanAttendancePage> {
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(message),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text(message), backgroundColor: Colors.red),
         );
         Navigator.pop(context);
       }
@@ -101,13 +100,13 @@ class _ScanAttendancePageState extends State<ScanAttendancePage> {
 
           // The QR code contains the LocationGUID (and now dynamic token info from the backend)
           context.read<AttendanceBloc>().add(
-                ScanQRCodeRequested(
-                  employeeGUID: widget.employeeGUID,
-                  locationGUID: code,
-                  latitude: position.latitude,
-                  longitude: position.longitude,
-                ),
-              );
+            ScanQRCodeRequested(
+              employeeGUID: widget.employeeGUID,
+              locationGUID: code,
+              latitude: position.latitude,
+              longitude: position.longitude,
+            ),
+          );
         } catch (e) {
           if (mounted) {
             setState(() {
@@ -129,21 +128,21 @@ class _ScanAttendancePageState extends State<ScanAttendancePage> {
   Widget build(BuildContext context) {
     return BlocListener<AttendanceBloc, AttendanceState>(
       listener: (context, state) {
-        if (state is ScanQRCodeSuccess) {
+        if (state.qrScanMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.message),
+              content: Text(state.qrScanMessage!),
               backgroundColor: Colors.green,
             ),
           );
           Navigator.pop(context, true); // Return true to refresh list
-        } else if (state is ScanQRCodeFailure) {
+        } else if (state.qrScanError != null) {
           setState(() {
             _isProcessing = false;
           });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.message),
+              content: Text(state.qrScanError!),
               backgroundColor: Colors.red,
             ),
           );
@@ -166,11 +165,8 @@ class _ScanAttendancePageState extends State<ScanAttendancePage> {
         body: Stack(
           children: [
             if (_hasStarted)
-              MobileScanner(
-                controller: controller,
-                onDetect: _onDetect,
-              ),
-            
+              MobileScanner(controller: controller, onDetect: _onDetect),
+
             // Scanner Overlay
             Center(
               child: Container(
@@ -181,7 +177,9 @@ class _ScanAttendancePageState extends State<ScanAttendancePage> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: _isProcessing
-                    ? const Center(child: CircularProgressIndicator(color: Colors.white))
+                    ? const Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      )
                     : null,
               ),
             ),
@@ -193,7 +191,10 @@ class _ScanAttendancePageState extends State<ScanAttendancePage> {
               right: 0,
               child: Center(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.black54,
                     borderRadius: BorderRadius.circular(30),
@@ -205,7 +206,7 @@ class _ScanAttendancePageState extends State<ScanAttendancePage> {
                 ),
               ),
             ),
-            
+
             // Flash toggle
             Positioned(
               top: 20,
@@ -218,11 +219,20 @@ class _ScanAttendancePageState extends State<ScanAttendancePage> {
                     builder: (context, state, child) {
                       switch (state.torchState) {
                         case TorchState.off:
-                          return const Icon(Icons.flash_off_rounded, color: Colors.white);
+                          return const Icon(
+                            Icons.flash_off_rounded,
+                            color: Colors.white,
+                          );
                         case TorchState.on:
-                          return const Icon(Icons.flash_on_rounded, color: Colors.yellow);
+                          return const Icon(
+                            Icons.flash_on_rounded,
+                            color: Colors.yellow,
+                          );
                         default:
-                          return const Icon(Icons.flash_off_rounded, color: Colors.grey);
+                          return const Icon(
+                            Icons.flash_off_rounded,
+                            color: Colors.grey,
+                          );
                       }
                     },
                   ),
