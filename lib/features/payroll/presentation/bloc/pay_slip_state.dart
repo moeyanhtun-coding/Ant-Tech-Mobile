@@ -1,31 +1,29 @@
 import 'package:equatable/equatable.dart';
 import '../../domain/entities/pay_slip_entity.dart';
 
-abstract class PaySlipState extends Equatable {
-  const PaySlipState();
-
-  @override
-  List<Object?> get props => [];
-}
-
-class PaySlipInitial extends PaySlipState {}
-
-class PaySlipLoading extends PaySlipState {}
-
-class PaySlipLoaded extends PaySlipState {
+class PaySlipState extends Equatable {
+  final bool isLoading;
   final List<PaySlipEntity> paySlips;
+  final String? error;
 
-  const PaySlipLoaded(this.paySlips);
+  const PaySlipState({
+    this.isLoading = false,
+    this.paySlips = const [],
+    this.error,
+  });
+
+  PaySlipState copyWith({
+    bool? isLoading,
+    List<PaySlipEntity>? paySlips,
+    String? error,
+  }) {
+    return PaySlipState(
+      isLoading: isLoading ?? this.isLoading,
+      paySlips: paySlips ?? this.paySlips,
+      error: error,
+    );
+  }
 
   @override
-  List<Object?> get props => [paySlips];
-}
-
-class PaySlipFailure extends PaySlipState {
-  final String message;
-
-  const PaySlipFailure(this.message);
-
-  @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [isLoading, paySlips, error];
 }
