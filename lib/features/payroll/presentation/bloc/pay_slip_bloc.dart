@@ -6,7 +6,7 @@ import 'pay_slip_state.dart';
 class PaySlipBloc extends Bloc<PaySlipEvent, PaySlipState> {
   final GetPaySlipsUseCase getPaySlipsUseCase;
 
-  PaySlipBloc({required this.getPaySlipsUseCase}) : super(PaySlipInitial()) {
+  PaySlipBloc({required this.getPaySlipsUseCase}) : super(const PaySlipState()) {
     on<GetPaySlipsRequested>(_onGetPaySlipsRequested);
   }
 
@@ -14,14 +14,23 @@ class PaySlipBloc extends Bloc<PaySlipEvent, PaySlipState> {
     GetPaySlipsRequested event,
     Emitter<PaySlipState> emit,
   ) async {
-    emit(PaySlipLoading());
+    emit(state.copyWith(isLoading: true, error: null));
+
     final result = await getPaySlipsUseCase(
       employeeGUID: event.employeeGUID,
       month: event.month,
+      forceRefresh: event.forceRefresh,
     );
+
     result.fold(
-      (failure) => emit(PaySlipFailure(failure.message)),
-      (paySlips) => emit(PaySlipLoaded(paySlips)),
+      (failure) => emit(state.copyWith(
+        isLoading: false,
+        error: failure.message,
+      )),
+      (paySlips) => emit(state.copyWith(
+        isLoading: false,
+        paySlips: paySlips,
+      )),
     );
   }
 }
