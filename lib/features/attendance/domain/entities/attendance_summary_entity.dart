@@ -6,6 +6,8 @@ class AttendanceSummaryEntity extends Equatable {
   final int earlyLeft;
   final int lateAndEarlyLeft;
   final int pendingRequestCount;
+  final int approvedRequestCount;
+  final int rejectedRequestCount;
   final String month;
 
   const AttendanceSummaryEntity({
@@ -14,6 +16,8 @@ class AttendanceSummaryEntity extends Equatable {
     required this.earlyLeft,
     required this.lateAndEarlyLeft,
     required this.pendingRequestCount,
+    required this.approvedRequestCount,
+    required this.rejectedRequestCount,
     required this.month,
   });
 
@@ -26,6 +30,8 @@ class AttendanceSummaryEntity extends Equatable {
         earlyLeft,
         lateAndEarlyLeft,
         pendingRequestCount,
+        approvedRequestCount,
+        rejectedRequestCount,
         month,
       ];
 }
