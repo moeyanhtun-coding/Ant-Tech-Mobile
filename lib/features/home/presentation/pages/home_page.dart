@@ -118,6 +118,7 @@ class _HomePageState extends State<HomePage> {
                           _buildAttendanceSummaryCard(
                             state.attendanceSummary,
                             state.isSummaryLoading,
+                            profile,
                           ),
 
                           if (state.isDutyLoading ||
@@ -253,6 +254,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildAttendanceSummaryCard(
     AttendanceSummary? summary,
     bool isLoading,
+    dynamic profile,
   ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
@@ -383,26 +385,39 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: _buildStatusTile(
-                        label: 'Pending Requests',
-                        count: summary.pendingRequestCount,
-                        color: Colors.blueAccent,
-                        icon: Icons.pending_actions_rounded,
+                        label: 'Late & Early Left',
+                        count: summary.lateAndEarlyLeft,
+                        color: const Color(
+                          0xFFEF4444,
+                        ), // Red for composite issues
+                        icon: Icons.running_with_errors_rounded,
                         isDark: isDark,
-                        onTap: () {
-                          final currentState = context.read<HomeBloc>().state;
-                          if (currentState is HomeLoaded) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => AttendancePage(
-                                  employeeGUID:
-                                      currentState.profile.employeeGUID,
-                                  initialTabIndex: 1, // Requests tab
-                                ),
-                              ),
-                            );
-                          }
-                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildStatusTile(
+                        label: 'Approved',
+                        count: summary.approvedRequestCount,
+                        color: Colors.blueAccent,
+                        icon: Icons.check_circle_outline_rounded,
+                        isDark: isDark,
+                        onTap: () => _navigateToRequests(profile),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildStatusTile(
+                        label: 'Rejected',
+                        count: summary.rejectedRequestCount,
+                        color: Colors.redAccent,
+                        icon: Icons.cancel_outlined,
+                        isDark: isDark,
+                        onTap: () => _navigateToRequests(profile),
                       ),
                     ),
                   ],
@@ -410,6 +425,18 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
         ],
+      ),
+    );
+  }
+
+  void _navigateToRequests(dynamic profile) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AttendancePage(
+          employeeGUID: profile.employeeGUID,
+          initialTabIndex: 1, // Requests tab
+        ),
       ),
     );
   }
@@ -482,6 +509,14 @@ class _HomePageState extends State<HomePage> {
         : Colors.grey.withValues(alpha: 0.15);
     return Column(
       children: [
+        Row(
+          children: [
+            Expanded(child: _shimmerBox(shimmerColor, height: 64)),
+            const SizedBox(width: 12),
+            Expanded(child: _shimmerBox(shimmerColor, height: 64)),
+          ],
+        ),
+        const SizedBox(height: 12),
         Row(
           children: [
             Expanded(child: _shimmerBox(shimmerColor, height: 64)),
