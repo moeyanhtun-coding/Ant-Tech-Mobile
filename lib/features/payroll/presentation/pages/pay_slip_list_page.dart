@@ -28,10 +28,14 @@ class _PaySlipListPageState extends State<PaySlipListPage> {
     _fetchPaySlips();
   }
 
-  void _fetchPaySlips() {
+  void _fetchPaySlips({bool forceRefresh = false}) {
     final monthStr = DateFormat('yyyy-MM').format(_selectedDate);
     context.read<PaySlipBloc>().add(
-      GetPaySlipsRequested(employeeGUID: widget.employeeGUID, month: monthStr),
+      GetPaySlipsRequested(
+        employeeGUID: widget.employeeGUID,
+        month: monthStr,
+        forceRefresh: forceRefresh,
+      ),
     );
   }
 
@@ -39,21 +43,31 @@ class _PaySlipListPageState extends State<PaySlipListPage> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
+      // Setting a wide range so users can look at past/future slips
       firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
+      lastDate: DateTime(2101),
+      // This helps emphasize the calendar UI
       initialDatePickerMode: DatePickerMode.year,
     );
+
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
       });
-      _fetchPaySlips();
+      _fetchPaySlips(); // Refresh the list with the new month
     }
+  }
+
+  Future<void> _onRefresh() async {
+    _fetchPaySlips(forceRefresh: true);
+    // Wait for the state to finish loading
+    await context.read<PaySlipBloc>().stream.firstWhere(
+      (state) => !state.isLoading,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
@@ -103,7 +117,7 @@ class _PaySlipListPageState extends State<PaySlipListPage> {
       body: BlocListener<NetworkBloc, NetworkState>(
         listener: (context, state) {
           if (state is NetworkSuccess) {
-            _fetchPaySlips();
+            _fetchPaySlips(forceRefresh: true);
           }
         },
         child: Column(
@@ -151,23 +165,11 @@ class _PaySlipListPageState extends State<PaySlipListPage> {
             Expanded(
               child: BlocBuilder<PaySlipBloc, PaySlipState>(
                 builder: (context, state) {
-                  if (state is PaySlipLoading) {
+                  if (state.isLoading && state.paySlips.isEmpty) {
                     return const Center(child: CircularProgressIndicator());
-                  } else if (state is PaySlipLoaded) {
-                    if (state.paySlips.isEmpty) {
-                      return _buildEmptyState(isDark);
-                    }
-                    return RefreshIndicator(
-                      onRefresh: () async => _fetchPaySlips(),
-                      child: ListView.builder(
-                        padding: const EdgeInsets.all(20),
-                        itemCount: state.paySlips.length,
-                        itemBuilder: (context, index) {
-                          return PaySlipCard(paySlip: state.paySlips[index]);
-                        },
-                      ),
-                    );
-                  } else if (state is PaySlipFailure) {
+                  }
+
+                  if (state.error != null && state.paySlips.isEmpty) {
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -178,17 +180,34 @@ class _PaySlipListPageState extends State<PaySlipListPage> {
                             color: Colors.red,
                           ),
                           const SizedBox(height: 16),
-                          Text(state.message, style: GoogleFonts.poppins()),
+                          Text(state.error!, style: GoogleFonts.poppins()),
                           const SizedBox(height: 16),
                           ElevatedButton(
-                            onPressed: _fetchPaySlips,
+                            onPressed: () => _fetchPaySlips(forceRefresh: true),
                             child: const Text('Retry'),
                           ),
                         ],
                       ),
                     );
                   }
-                  return const SizedBox.shrink();
+
+                  if (state.paySlips.isEmpty) {
+                    return RefreshIndicator(
+                      onRefresh: _onRefresh,
+                      child: Stack(children: [ListView(), _buildEmptyState()]),
+                    );
+                  }
+
+                  return RefreshIndicator(
+                    onRefresh: _onRefresh,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(20),
+                      itemCount: state.paySlips.length,
+                      itemBuilder: (context, index) {
+                        return PaySlipCard(paySlip: state.paySlips[index]);
+                      },
+                    ),
+                  );
                 },
               ),
             ),
@@ -198,7 +217,7 @@ class _PaySlipListPageState extends State<PaySlipListPage> {
     );
   }
 
-  Widget _buildEmptyState(bool isDark) {
+  Widget _buildEmptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
