@@ -5,6 +5,9 @@ class LocalStorage {
   static const String keyRefreshToken = 'refresh_token';
   static const String keyThemeMode = 'theme_mode';
   static const String keyOfflinePasscode = 'offline_passcode';
+  static const String keyAttendanceRecords = 'attendance_records';
+  static const String keyAttendanceRequests = 'attendance_requests';
+  static const String keyPaySlips = 'pay_slips';
 
   static Future<void> saveThemeMode(String mode) async {
     final prefs = await SharedPreferences.getInstance();
