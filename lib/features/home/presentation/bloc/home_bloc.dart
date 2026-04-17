@@ -5,10 +5,6 @@ import '../../../../core/usecases/usecase.dart';
 import '../../../attendance/domain/repositories/attendance_repository.dart';
 import '../../../duty_roster/domain/usecases/get_duty_roster_assignments_usecase.dart';
 import '../../domain/usecases/get_profile_usecase.dart';
-import 'package:dartz/dartz.dart';
-import '../../../../core/error/failures.dart';
-import '../../../attendance/domain/entities/attendance_entity.dart';
-import '../../../attendance/domain/entities/attendance_request_entity.dart';
 import 'home_event.dart';
 import 'home_state.dart';
 
@@ -88,6 +84,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           lateAndEarlyLeft: summaryEntity.lateAndEarlyLeft,
           pendingRequestCount: summaryEntity.pendingRequestCount,
           month: summaryEntity.month,
+          approvedRequestCount: summaryEntity.approvedRequestCount,
+          rejectedRequestCount: summaryEntity.rejectedRequestCount,
         );
 
         emit(
