@@ -11,7 +11,7 @@ class DutyRosterRepositoryImpl implements DutyRosterRepository {
 
   @override
   Future<Either<Failure, List<DutyRosterAssignmentEntity>>>
-      getAssignmentsByEmployee({
+  getAssignmentsByEmployee({
     required String employeeGUID,
     String? month,
   }) async {
