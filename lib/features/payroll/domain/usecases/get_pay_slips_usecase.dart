@@ -11,10 +11,12 @@ class GetPaySlipsUseCase {
   Future<Either<Failure, List<PaySlipEntity>>> call({
     required String employeeGUID,
     String? month,
+    bool forceRefresh = false,
   }) async {
     return await repository.getPaySlipsByEmployee(
       employeeGUID: employeeGUID,
       month: month,
+      forceRefresh: forceRefresh,
     );
   }
 }
