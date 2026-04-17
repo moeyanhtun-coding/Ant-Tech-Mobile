@@ -7,6 +7,8 @@ class AttendanceSummaryModel extends AttendanceSummaryEntity {
     required super.earlyLeft,
     required super.lateAndEarlyLeft,
     required super.pendingRequestCount,
+    required super.approvedRequestCount,
+    required super.rejectedRequestCount,
     required super.month,
   });
 
@@ -17,6 +19,8 @@ class AttendanceSummaryModel extends AttendanceSummaryEntity {
       earlyLeft: json['earlyLeft'] ?? 0,
       lateAndEarlyLeft: json['lateAndEarlyLeft'] ?? 0,
       pendingRequestCount: json['pendingRequestCount'] ?? 0,
+      approvedRequestCount: json['approvedRequestCount'] ?? 0,
+      rejectedRequestCount: json['rejectedRequestCount'] ?? 0,
       month: json['month'] ?? '',
     );
   }
@@ -28,6 +32,8 @@ class AttendanceSummaryModel extends AttendanceSummaryEntity {
       'earlyLeft': earlyLeft,
       'lateAndEarlyLeft': lateAndEarlyLeft,
       'pendingRequestCount': pendingRequestCount,
+      'approvedRequestCount': approvedRequestCount,
+      'rejectedRequestCount': rejectedRequestCount,
       'month': month,
     };
   }
