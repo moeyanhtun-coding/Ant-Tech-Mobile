@@ -6,5 +6,6 @@ abstract class PaySlipRepository {
   Future<Either<Failure, List<PaySlipEntity>>> getPaySlipsByEmployee({
     required String employeeGUID,
     String? month,
+    bool forceRefresh = false,
   });
 }
