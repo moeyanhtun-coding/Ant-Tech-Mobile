@@ -1,10 +1,13 @@
+import 'dart:convert';
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/utils/local_storage.dart';
 import '../../domain/entities/attendance_entity.dart';
 import '../../domain/entities/attendance_request_entity.dart';
 import '../../domain/entities/attendance_summary_entity.dart';
 import '../../domain/repositories/attendance_repository.dart';
 import '../datasources/attendance_remote_data_source.dart';
+import '../models/attendance_model.dart';
 import '../models/attendance_request_model.dart';
 
 class AttendanceRepositoryImpl implements AttendanceRepository {
@@ -24,8 +27,25 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
     bool forceRefresh = false,
   }) async {
     final cacheKey = '${employeeGUID}_$month';
+    
+    // 1. Try In-memory cache
     if (!forceRefresh && _attendanceCache.containsKey(cacheKey)) {
       return Right(_attendanceCache[cacheKey]!);
+    }
+
+    // 2. Try Persistent Local Storage cache (if not forcing refresh)
+    if (!forceRefresh) {
+      final cachedData = await LocalStorage.getCache('${LocalStorage.keyAttendanceRecords}_$cacheKey');
+      if (cachedData != null) {
+        try {
+          final List<dynamic> decoded = json.decode(cachedData);
+          final records = decoded.map((item) => AttendanceModel.fromJson(item)).toList();
+          _attendanceCache[cacheKey] = records;
+          return Right(records);
+        } catch (e) {
+          // If decoding fails, continue to remote
+        }
+      }
     }
 
     try {
@@ -33,11 +53,23 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
         employeeGUID: employeeGUID,
         month: month,
       );
+      
+      // Update caches
       _attendanceCache[cacheKey] = records;
+      final jsonRecords = records.map((e) => (e as AttendanceModel).toJson()).toList();
+      await LocalStorage.saveCache('${LocalStorage.keyAttendanceRecords}_$cacheKey', json.encode(jsonRecords));
+      
       return Right(records);
     } on ServerFailure catch (e) {
+      // If we failed to fetch fresh data but have cached data, return that instead of error
+      if (_attendanceCache.containsKey(cacheKey)) {
+        return Right(_attendanceCache[cacheKey]!);
+      }
       return Left(e);
     } catch (e) {
+      if (_attendanceCache.containsKey(cacheKey)) {
+        return Right(_attendanceCache[cacheKey]!);
+      }
       return Left(ServerFailure(e.toString()));
     }
   }
@@ -59,6 +91,9 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
       // Invalidate cache on scan
       _attendanceCache.clear();
       _summaryCache.clear();
+      // We don't clear persistent cache here to allow offline viewing of old data, 
+      // but maybe we should clear it if we want to force re-fetch after scan?
+      // For now, let's keep it for offline resilience.
       return Right(message);
     } on ServerFailure catch (e) {
       return Left(e);
@@ -74,8 +109,25 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
     bool forceRefresh = false,
   }) async {
     final cacheKey = '${employeeGUID}_$month';
+
+    // 1. Try In-memory cache
     if (!forceRefresh && _requestsCache.containsKey(cacheKey)) {
       return Right(_requestsCache[cacheKey]!);
+    }
+
+    // 2. Try Persistent Local Storage cache
+    if (!forceRefresh) {
+      final cachedData = await LocalStorage.getCache('${LocalStorage.keyAttendanceRequests}_$cacheKey');
+      if (cachedData != null) {
+        try {
+          final List<dynamic> decoded = json.decode(cachedData);
+          final records = decoded.map((item) => AttendanceRequestModel.fromJson(item)).toList();
+          _requestsCache[cacheKey] = records;
+          return Right(records);
+        } catch (e) {
+          // Continue to remote
+        }
+      }
     }
 
     try {
@@ -83,11 +135,22 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
         employeeGUID: employeeGUID,
         month: month,
       );
+      
+      // Update caches
       _requestsCache[cacheKey] = records;
+      final jsonRecords = records.map((e) => (e as AttendanceRequestModel).toJson()).toList();
+      await LocalStorage.saveCache('${LocalStorage.keyAttendanceRequests}_$cacheKey', json.encode(jsonRecords));
+      
       return Right(records);
     } on ServerFailure catch (e) {
+      if (_requestsCache.containsKey(cacheKey)) {
+        return Right(_requestsCache[cacheKey]!);
+      }
       return Left(e);
     } catch (e) {
+      if (_requestsCache.containsKey(cacheKey)) {
+        return Right(_requestsCache[cacheKey]!);
+      }
       return Left(ServerFailure(e.toString()));
     }
   }
