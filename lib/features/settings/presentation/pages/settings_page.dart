@@ -263,7 +263,9 @@ class SettingsPage extends StatelessWidget {
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Offline passcode updated successfully.'),
+                            content: Text(
+                              'Offline passcode updated successfully.',
+                            ),
                             backgroundColor: Colors.green,
                           ),
                         );
