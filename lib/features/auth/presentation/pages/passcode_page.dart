@@ -59,7 +59,7 @@ class _PasscodePageState extends State<PasscodePage> {
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: <Widget>[
             const Icon(Icons.lock_clock_rounded, size: 80, color: Colors.white),
             const SizedBox(height: 20),
             Text(
