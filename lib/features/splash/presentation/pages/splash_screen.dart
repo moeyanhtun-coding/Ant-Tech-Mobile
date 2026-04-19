@@ -39,17 +39,20 @@ class _SplashScreenState extends State<SplashScreen>
     final offlinePasscode = await LocalStorage.getOfflinePasscode();
     final isConnected = await di.sl<NetworkInfo>().isConnected;
 
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 2));
 
     if (mounted) {
-      if (!isConnected && offlinePasscode != null && offlinePasscode.isNotEmpty) {
+      if (!isConnected &&
+          offlinePasscode != null &&
+          offlinePasscode.isNotEmpty) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const PasscodePage()),
         );
       } else {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (_) => token != null ? const MainPage() : const LoginPage(),
+            builder: (_) =>
+                token != null ? const MainPage() : const LoginPage(),
           ),
         );
       }
