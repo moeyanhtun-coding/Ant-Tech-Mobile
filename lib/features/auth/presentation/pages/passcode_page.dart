@@ -40,6 +40,12 @@ class _PasscodePageState extends State<PasscodePage> {
   }
 
   @override
+  void dispose() {
+    _pinController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
@@ -54,11 +60,7 @@ class _PasscodePageState extends State<PasscodePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.lock_clock_rounded,
-              size: 80,
-              color: Colors.white,
-            ),
+            const Icon(Icons.lock_clock_rounded, size: 80, color: Colors.white),
             const SizedBox(height: 20),
             Text(
               'Offline Mode',
@@ -71,10 +73,7 @@ class _PasscodePageState extends State<PasscodePage> {
             const SizedBox(height: 8),
             Text(
               'Enter your 4-digit passcode',
-              style: GoogleFonts.poppins(
-                fontSize: 16,
-                color: Colors.white70,
-              ),
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.white70),
             ),
             const SizedBox(height: 48),
             Container(
@@ -83,7 +82,9 @@ class _PasscodePageState extends State<PasscodePage> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: _hasError ? Border.all(color: Colors.redAccent, width: 2) : null,
+                border: _hasError
+                    ? Border.all(color: Colors.redAccent, width: 2)
+                    : null,
               ),
               child: TextField(
                 controller: _pinController,
