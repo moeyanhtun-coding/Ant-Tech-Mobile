@@ -47,8 +47,8 @@ class _AttendanceRequestDialogState extends State<AttendanceRequestDialog> {
         }
 
         Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-          timeLimit: const Duration(seconds: 10),
+          desiredAccuracy: LocationAccuracy.best,
+          timeLimit: const Duration(seconds: 15),
         );
         
         if (mounted) {
