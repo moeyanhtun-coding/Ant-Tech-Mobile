@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -92,10 +94,11 @@ class _ScanAttendancePageState extends State<ScanAttendancePage> {
         try {
           // Get high-accuracy position
           Position position = await Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.high,
-            timeLimit: const Duration(seconds: 10),
+            desiredAccuracy: LocationAccuracy.best,
+            timeLimit: const Duration(seconds: 15),
           );
-
+          log('Raw Lat: ${position.latitude.toString()}');
+          log('Raw Long: ${position.longitude.toString()}');
           if (!mounted) return;
 
           // The QR code contains the LocationGUID (and now dynamic token info from the backend)
