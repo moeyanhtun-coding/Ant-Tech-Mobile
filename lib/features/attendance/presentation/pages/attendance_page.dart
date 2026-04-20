@@ -1,3 +1,5 @@
+import 'package:at_hr_mobile/core/bloc/network/network_bloc.dart';
+import 'package:at_hr_mobile/core/bloc/network/network_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -55,19 +57,19 @@ class _AttendancePageState extends State<AttendancePage>
   void _fetchAllData({bool forceRefresh = false}) {
     final monthStr = DateFormat('yyyy-MM').format(_selectedMonth);
     context.read<AttendanceBloc>().add(
-          FetchAllAttendanceDataRequested(
-            employeeGUID: widget.employeeGUID,
-            month: monthStr,
-            forceRefresh: forceRefresh,
-          ),
-        );
+      FetchAllAttendanceDataRequested(
+        employeeGUID: widget.employeeGUID,
+        month: monthStr,
+        forceRefresh: forceRefresh,
+      ),
+    );
   }
 
   Future<void> _onRefresh() async {
     _fetchAllData(forceRefresh: true);
     await context.read<AttendanceBloc>().stream.firstWhere(
-          (state) => !state.isLoadingRecords && !state.isLoadingRequests,
-        );
+      (state) => !state.isLoadingRecords && !state.isLoadingRequests,
+    );
   }
 
   Future<void> _selectMonth(BuildContext context) async {
@@ -88,9 +90,8 @@ class _AttendancePageState extends State<AttendancePage>
   void _showRequestDialog() {
     showDialog(
       context: context,
-      builder: (context) => AttendanceRequestDialog(
-        employeeGUID: widget.employeeGUID,
-      ),
+      builder: (context) =>
+          AttendanceRequestDialog(employeeGUID: widget.employeeGUID),
     );
   }
 
@@ -116,6 +117,29 @@ class _AttendancePageState extends State<AttendancePage>
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
         actions: [
+          BlocBuilder<NetworkBloc, NetworkState>(
+            builder: (context, state) {
+              if (state is NetworkFailure) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: Chip(
+                    backgroundColor: Colors.red.withOpacity(0.1),
+                    side: const BorderSide(color: Colors.redAccent),
+                    label: Text(
+                      'Offline',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.redAccent,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.calendar_month_rounded),
             onPressed: () => _selectMonth(context),
@@ -123,8 +147,14 @@ class _AttendancePageState extends State<AttendancePage>
         ],
         bottom: TabBar(
           controller: _tabController,
-          labelStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 14),
-          unselectedLabelStyle: GoogleFonts.poppins(fontWeight: FontWeight.w500, fontSize: 14),
+          labelStyle: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+          ),
+          unselectedLabelStyle: GoogleFonts.poppins(
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+          ),
           indicatorColor: colorScheme.primary,
           labelColor: colorScheme.primary,
           unselectedLabelColor: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -140,7 +170,10 @@ class _AttendancePageState extends State<AttendancePage>
         icon: const Icon(Icons.add_task_rounded, color: Colors.white),
         label: Text(
           'Request',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: Colors.white),
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
         ),
       ),
       body: BlocListener<AttendanceBloc, AttendanceState>(
@@ -151,9 +184,9 @@ class _AttendancePageState extends State<AttendancePage>
             previous.submitRequestError != current.submitRequestError,
         listener: (context, state) {
           if (state.qrScanMessage != null) {
-             // Optional feedback for scan success, but usually handled in scanner page
+            // Optional feedback for scan success, but usually handled in scanner page
           }
-          
+
           if (state.submitRequestMessage != null) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -177,10 +210,7 @@ class _AttendancePageState extends State<AttendancePage>
             Expanded(
               child: TabBarView(
                 controller: _tabController,
-                children: [
-                  _buildAttendanceList(),
-                  _buildRequestList(),
-                ],
+                children: [_buildAttendanceList(), _buildRequestList()],
               ),
             ),
           ],
@@ -195,14 +225,17 @@ class _AttendancePageState extends State<AttendancePage>
         if (state.isLoadingRecords && state.records.isEmpty) {
           return const Center(child: CircularProgressIndicator());
         }
-        
+
         if (state.records.isEmpty) {
           return RefreshIndicator(
             onRefresh: _onRefresh,
-            child: _buildEmptyState('No Records Found', 'There are no attendance records for this period.'),
+            child: _buildEmptyState(
+              'No Records Found',
+              'There are no attendance records for this period.',
+            ),
           );
         }
-        
+
         return RefreshIndicator(
           onRefresh: _onRefresh,
           child: ListView.builder(
@@ -223,14 +256,17 @@ class _AttendancePageState extends State<AttendancePage>
         if (state.isLoadingRequests && state.requests.isEmpty) {
           return const Center(child: CircularProgressIndicator());
         }
-        
+
         if (state.requests.isEmpty) {
           return RefreshIndicator(
             onRefresh: _onRefresh,
-            child: _buildEmptyState('No Requests Found', 'There are no attendance requests for this period.'),
+            child: _buildEmptyState(
+              'No Requests Found',
+              'There are no attendance requests for this period.',
+            ),
           );
         }
-        
+
         return RefreshIndicator(
           onRefresh: _onRefresh,
           child: ListView.builder(
