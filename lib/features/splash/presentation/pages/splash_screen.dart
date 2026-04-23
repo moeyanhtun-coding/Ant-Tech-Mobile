@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:at_hr_mobile/features/auth/presentation/pages/login_page.dart';
 import 'package:at_hr_mobile/features/main/presentation/pages/main_page.dart';
 import 'package:at_hr_mobile/core/utils/local_storage.dart';
+import 'package:at_hr_mobile/core/theme/app_theme.dart';
 
 import 'package:at_hr_mobile/core/network/network_info.dart';
 import 'package:at_hr_mobile/features/auth/presentation/pages/passcode_page.dart';
@@ -67,12 +68,14 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.appColors;
+
     return Scaffold(
       body: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF2193b0), Color(0xFF6dd5ed)],
+            colors: [appColors.brandGradientStart, appColors.brandGradientEnd],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
