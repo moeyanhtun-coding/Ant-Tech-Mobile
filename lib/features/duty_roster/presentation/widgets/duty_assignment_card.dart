@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:at_hr_mobile/core/theme/app_theme.dart';
 import '../../domain/entities/duty_roster_assignment_entity.dart';
 
 class DutyAssignmentCard extends StatelessWidget {
@@ -12,6 +13,7 @@ class DutyAssignmentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
+    final appColors = context.appColors;
 
     // Parse work day
     DateTime workDate;
@@ -56,8 +58,11 @@ class DutyAssignmentCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: isDark
-                        ? [const Color(0xFF334155), const Color(0xFF1E293B)]
-                        : [const Color(0xFF2193b0), const Color(0xFF6dd5ed)],
+                        ? [colorScheme.primaryContainer, colorScheme.surface]
+                        : [
+                            appColors.brandGradientStart,
+                            appColors.brandGradientEnd,
+                          ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                   ),
