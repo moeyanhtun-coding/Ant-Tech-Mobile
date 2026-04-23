@@ -66,11 +66,11 @@ class _MainPageState extends State<MainPage> {
                   decoration: BoxDecoration(
                     color: isDark
                         ? colorScheme.surfaceContainerHighest
-                        : Colors.white,
+                        : colorScheme.surfaceContainerLowest,
                     borderRadius: BorderRadius.circular(35),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
+                        color: colorScheme.onSurface.withValues(alpha: 0.1),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -139,9 +139,7 @@ class _MainPageState extends State<MainPage> {
   }) {
     final isSelected = _currentIndex == index;
     final activeColor = colorScheme.primary;
-    final inactiveColor = Theme.of(context).brightness == Brightness.dark
-        ? Colors.grey[400]!
-        : Colors.grey[600]!;
+    final inactiveColor = colorScheme.onSurfaceVariant;
 
     return GestureDetector(
       onTap: () {
