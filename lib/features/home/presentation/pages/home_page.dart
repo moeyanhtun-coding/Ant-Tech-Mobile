@@ -1,5 +1,6 @@
 import 'package:at_hr_mobile/core/bloc/network/network_bloc.dart';
 import 'package:at_hr_mobile/core/bloc/network/network_state.dart';
+import 'package:at_hr_mobile/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -32,6 +33,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = colorScheme.brightness == Brightness.dark;
+    final appColors = context.appColors;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -47,13 +49,15 @@ class _HomePageState extends State<HomePage> {
                 return Padding(
                   padding: const EdgeInsets.only(right: 16.0),
                   child: Chip(
-                    backgroundColor: Colors.red.withOpacity(0.1),
-                    side: const BorderSide(color: Colors.redAccent),
+                    backgroundColor: appColors.offlineChipBackground,
+                    side: BorderSide(
+                      color: colorScheme.error.withValues(alpha: 0.7),
+                    ),
                     label: Text(
                       'Offline',
                       style: GoogleFonts.poppins(
                         fontSize: 12,
-                        color: Colors.redAccent,
+                        color: colorScheme.error,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -161,7 +165,7 @@ class _HomePageState extends State<HomePage> {
                               _buildActionCard(
                                 Icons.calendar_today_rounded,
                                 'Attendance',
-                                Colors.blue,
+                                appColors.info,
                                 onTap: () {
                                   Navigator.push(
                                     context,
@@ -176,12 +180,12 @@ class _HomePageState extends State<HomePage> {
                               _buildActionCard(
                                 Icons.beach_access_rounded,
                                 'Leave',
-                                Colors.orange,
+                                appColors.warning,
                               ),
                               _buildActionCard(
                                 Icons.payments_rounded,
                                 'Payroll',
-                                Colors.green,
+                                appColors.success,
                                 onTap: () {
                                   Navigator.push(
                                     context,
@@ -196,7 +200,7 @@ class _HomePageState extends State<HomePage> {
                               _buildActionCard(
                                 Icons.event_note_rounded,
                                 'Duty Roster',
-                                Colors.redAccent,
+                                appColors.error,
                                 onTap: () {
                                   Navigator.push(
                                     context,
@@ -211,7 +215,7 @@ class _HomePageState extends State<HomePage> {
                               _buildActionCard(
                                 Icons.description_rounded,
                                 'Documents',
-                                Colors.purple,
+                                colorScheme.secondary,
                               ),
                             ],
                           ),
@@ -227,10 +231,10 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.error_outline,
                       size: 60,
-                      color: Colors.red,
+                      color: colorScheme.error,
                     ),
                     const SizedBox(height: 16),
                     Text(state.message, style: GoogleFonts.poppins()),
@@ -258,6 +262,7 @@ class _HomePageState extends State<HomePage> {
   ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
+    final appColors = context.appColors;
 
     return Container(
       width: double.infinity,
@@ -290,12 +295,12 @@ class _HomePageState extends State<HomePage> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2193b0).withValues(alpha: 0.12),
+                      color: colorScheme.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.bar_chart_rounded,
-                      color: Color(0xFF2193b0),
+                      color: colorScheme.primary,
                       size: 18,
                     ),
                   ),
@@ -317,7 +322,7 @@ class _HomePageState extends State<HomePage> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF2193b0).withValues(alpha: 0.1),
+                    color: colorScheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -325,7 +330,7 @@ class _HomePageState extends State<HomePage> {
                     style: GoogleFonts.poppins(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF2193b0),
+                      color: colorScheme.primary,
                     ),
                   ),
                 ),
@@ -353,7 +358,7 @@ class _HomePageState extends State<HomePage> {
                       child: _buildStatusTile(
                         label: 'Present',
                         count: summary.present,
-                        color: const Color(0xFF10B981),
+                        color: appColors.success,
                         icon: Icons.check_circle_rounded,
                         isDark: isDark,
                       ),
@@ -363,7 +368,7 @@ class _HomePageState extends State<HomePage> {
                       child: _buildStatusTile(
                         label: 'Late',
                         count: summary.late,
-                        color: const Color(0xFFF59E0B),
+                        color: appColors.warning,
                         icon: Icons.access_time_rounded,
                         isDark: isDark,
                       ),
@@ -377,7 +382,7 @@ class _HomePageState extends State<HomePage> {
                       child: _buildStatusTile(
                         label: 'Early Left',
                         count: summary.earlyLeft,
-                        color: const Color(0xFF8B5CF6),
+                        color: colorScheme.secondary,
                         icon: Icons.exit_to_app_rounded,
                         isDark: isDark,
                       ),
@@ -387,9 +392,7 @@ class _HomePageState extends State<HomePage> {
                       child: _buildStatusTile(
                         label: 'Late & Early Left',
                         count: summary.lateAndEarlyLeft,
-                        color: const Color(
-                          0xFFEF4444,
-                        ), // Red for composite issues
+                        color: appColors.error,
                         icon: Icons.running_with_errors_rounded,
                         isDark: isDark,
                       ),
@@ -403,7 +406,7 @@ class _HomePageState extends State<HomePage> {
                       child: _buildStatusTile(
                         label: 'Approved',
                         count: summary.approvedRequestCount,
-                        color: Colors.blueAccent,
+                        color: appColors.info,
                         icon: Icons.check_circle_outline_rounded,
                         isDark: isDark,
                         onTap: () => _navigateToRequests(profile),
@@ -414,7 +417,7 @@ class _HomePageState extends State<HomePage> {
                       child: _buildStatusTile(
                         label: 'Rejected',
                         count: summary.rejectedRequestCount,
-                        color: Colors.redAccent,
+                        color: appColors.error,
                         icon: Icons.cancel_outlined,
                         isDark: isDark,
                         onTap: () => _navigateToRequests(profile),
@@ -555,6 +558,8 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildHeader(dynamic profile) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
+    final appColors = context.appColors;
 
     return Container(
       width: double.infinity,
@@ -562,8 +567,8 @@ class _HomePageState extends State<HomePage> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isDark
-              ? [const Color(0xFF1E293B), const Color(0xFF0F172A)]
-              : [const Color(0xFF2193b0), const Color(0xFF6dd5ed)],
+              ? [colorScheme.primaryContainer, colorScheme.surface]
+              : [appColors.brandGradientStart, appColors.brandGradientEnd],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
