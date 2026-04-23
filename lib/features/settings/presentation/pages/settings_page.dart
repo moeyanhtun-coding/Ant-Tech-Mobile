@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../auth/presentation/pages/login_page.dart';
 import '../../../auth/presentation/pages/passcode_page.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/local_storage.dart';
 import '../../../../core/network/network_info.dart';
 import '../../../../injection_container.dart' as di;
@@ -97,11 +98,13 @@ class SettingsPage extends StatelessWidget {
                 icon: const Icon(Icons.logout_rounded),
                 label: const Text('LOGOUT'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red.withValues(alpha: 0.1),
-                  foregroundColor: Colors.red,
+                  backgroundColor: colorScheme.error.withValues(alpha: 0.12),
+                  foregroundColor: colorScheme.error,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   elevation: 0,
-                  side: BorderSide(color: Colors.red.withValues(alpha: 0.3)),
+                  side: BorderSide(
+                    color: colorScheme.error.withValues(alpha: 0.35),
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -173,9 +176,11 @@ class SettingsPage extends StatelessWidget {
                 if (context.mounted) {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Offline passcode saved successfully.'),
-                      backgroundColor: Colors.green,
+                    SnackBar(
+                      content: const Text(
+                        'Offline passcode saved successfully.',
+                      ),
+                      backgroundColor: context.appColors.success,
                     ),
                   );
                 }
@@ -262,11 +267,11 @@ class SettingsPage extends StatelessWidget {
                       if (context.mounted) {
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
+                          SnackBar(
+                            content: const Text(
                               'Offline passcode updated successfully.',
                             ),
-                            backgroundColor: Colors.green,
+                            backgroundColor: context.appColors.success,
                           ),
                         );
                       }
@@ -321,7 +326,10 @@ class SettingsPage extends StatelessWidget {
               Navigator.pop(context);
               _onLogout(context);
             },
-            child: const Text('Logout', style: TextStyle(color: Colors.red)),
+            child: Text(
+              'Logout',
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
           ),
         ],
       ),
