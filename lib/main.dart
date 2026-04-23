@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'core/theme/app_theme.dart';
 import 'core/utils/globals.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/home/presentation/bloc/home_bloc.dart';
@@ -47,30 +47,8 @@ class MyApp extends StatelessWidget {
             title: 'HWD HR Mobile',
             debugShowCheckedModeBanner: false,
             themeMode: state.themeMode,
-            theme: ThemeData(
-              useMaterial3: true,
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: const Color(0xFF2193b0),
-                primary: const Color(0xFF2193b0),
-                surface: const Color(0xFFF5F7FB),
-              ),
-              textTheme: GoogleFonts.poppinsTextTheme(
-                ThemeData.light().textTheme,
-              ),
-            ),
-            darkTheme: ThemeData(
-              useMaterial3: true,
-              brightness: Brightness.dark,
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: const Color(0xFF4facfe),
-                brightness: Brightness.dark,
-                surface: const Color(0xFF0F172A),
-                primary: const Color(0xFF38BDF8),
-              ),
-              textTheme: GoogleFonts.poppinsTextTheme(
-                ThemeData.dark().textTheme,
-              ),
-            ),
+            theme: AppTheme.light(),
+            darkTheme: AppTheme.dark(),
             home: const SplashScreen(),
           );
         },
