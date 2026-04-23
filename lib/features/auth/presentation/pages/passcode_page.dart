@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../main/presentation/pages/main_page.dart';
 import '../../../../core/utils/local_storage.dart';
+import '../../../../core/theme/app_theme.dart';
 import 'login_page.dart';
 
 class PasscodePage extends StatefulWidget {
@@ -47,12 +48,15 @@ class _PasscodePageState extends State<PasscodePage> {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.appColors;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       body: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF2193b0), Color(0xFF6dd5ed)],
+            colors: [appColors.brandGradientStart, appColors.brandGradientEnd],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -97,7 +101,7 @@ class _PasscodePageState extends State<PasscodePage> {
                   fontSize: 32,
                   letterSpacing: 24,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF2193b0),
+                  color: colorScheme.primary,
                 ),
                 decoration: const InputDecoration(
                   counterText: '',
@@ -113,7 +117,7 @@ class _PasscodePageState extends State<PasscodePage> {
                 style: GoogleFonts.poppins(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
-                  backgroundColor: Colors.redAccent.withOpacity(0.8),
+                  backgroundColor: Colors.redAccent.withValues(alpha: 0.8),
                 ),
               ),
             ],
