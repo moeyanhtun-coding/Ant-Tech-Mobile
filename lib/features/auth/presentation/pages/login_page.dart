@@ -1,6 +1,6 @@
 import 'package:at_hr_mobile/core/bloc/network/network_bloc.dart';
 import 'package:at_hr_mobile/core/bloc/network/network_state.dart';
-import 'package:at_hr_mobile/core/error/failures.dart' hide NetworkFailure;
+import 'package:at_hr_mobile/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -43,6 +43,9 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final appColors = context.appColors;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -55,13 +58,15 @@ class _LoginPageState extends State<LoginPage> {
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Chip(
-                    backgroundColor: Colors.red.withOpacity(0.1),
-                    side: const BorderSide(color: Colors.redAccent),
+                    backgroundColor: appColors.offlineChipBackground,
+                    side: BorderSide(
+                      color: colorScheme.error.withValues(alpha: 0.7),
+                    ),
                     label: Text(
                       'Offline',
                       style: GoogleFonts.poppins(
                         fontSize: 12,
-                        color: Colors.redAccent,
+                        color: colorScheme.error,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -84,7 +89,7 @@ class _LoginPageState extends State<LoginPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
-                backgroundColor: Colors.red,
+                backgroundColor: colorScheme.error,
               ),
             );
           }
@@ -92,9 +97,12 @@ class _LoginPageState extends State<LoginPage> {
         child: SingleChildScrollView(
           child: Container(
             height: MediaQuery.of(context).size.height,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF2193b0), Color(0xFF6dd5ed)],
+                colors: [
+                  appColors.brandGradientStart,
+                  appColors.brandGradientEnd,
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -159,7 +167,7 @@ class _LoginPageState extends State<LoginPage> {
                           onPressed: _onLogin,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
-                            foregroundColor: const Color(0xFF2193b0),
+                            foregroundColor: colorScheme.primary,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15),
