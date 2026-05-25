@@ -99,12 +99,14 @@ extension AppThemeColorsX on BuildContext {
 }
 
 class AppTheme {
+  // Light Theme Colors from the first image
   static const Color _lightPrimary = Color(0xFF1296EA);
   static const Color _lightPrimaryContainer = Color(0xFFDDF1FF);
   static const Color _lightSecondary = Color(0xFF1FB6FF);
   static const Color _lightSurface = Color(0xFFF3F9FF);
   static const Color _lightBackground = Color(0xFFEAF4FF);
 
+  // Dark Theme Colors from the second image
   static const Color _darkPrimary = Color(0xFF4DB8FF);
   static const Color _darkPrimaryContainer = Color(0xFF0F3552);
   static const Color _darkSecondary = Color(0xFF22A6F2);
@@ -133,7 +135,10 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: _lightBackground,
-      textTheme: GoogleFonts.poppinsTextTheme(ThemeData.light().textTheme),
+      textTheme: GoogleFonts.poppinsTextTheme().apply(
+        bodyColor: colorScheme.onSurface,
+        displayColor: colorScheme.onSurface,
+      ),
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         foregroundColor: colorScheme.onSurface,
@@ -144,10 +149,10 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: colorScheme.primary,
           foregroundColor: colorScheme.onPrimary,
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          elevation: 2,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(16),
           ),
         ),
       ),
@@ -161,7 +166,7 @@ class AppTheme {
         ),
       ),
       cardTheme: CardThemeData(
-        color: const Color(0xFFF8FBFF), // Softened white
+        color: const Color(0xFFF8FBFF),
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
@@ -187,24 +192,32 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: const Color(0xFFF0F7FF), // Subtle blue-tinted white
-        hintStyle: GoogleFonts.poppins(color: Colors.white70),
-
+        fillColor: Colors.white,
+        hintStyle: GoogleFonts.poppins(
+          color: colorScheme.onSurface.withValues(alpha: 0.5),
+          fontSize: 14,
+        ),
+        prefixIconColor: colorScheme.onSurface.withValues(alpha: 0.6),
+        suffixIconColor: colorScheme.onSurface.withValues(alpha: 0.6),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 18,
+        ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(
-            color: colorScheme.primary.withValues(alpha: 0.12),
+            color: colorScheme.onSurface.withValues(alpha: 0.1),
           ),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(
-            color: colorScheme.primary.withValues(alpha: 0.12),
+            color: colorScheme.onSurface.withValues(alpha: 0.1),
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: colorScheme.primary, width: 1.4),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
         ),
       ),
       extensions: const [AppThemeColors.light],
